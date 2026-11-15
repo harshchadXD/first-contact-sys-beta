@@ -1,0 +1,88 @@
+{
+  "scope": "Actual compiled WASM against hand-derived geometric cases; no NASA DEM, ephemeris or mission validation.",
+  "cases": [
+    {
+      "name": "Irregular intervals",
+      "expected": {
+        "sunFraction": 0.42857142857142855,
+        "earthFraction": 0.5714285714285714,
+        "darknessHours": 4,
+        "earthContinuousHours": 4,
+        "earthBlackoutHours": 2
+      },
+      "actual": {
+        "positionId": "analytic-flat",
+        "sunVisible": [
+          true,
+          false,
+          false,
+          true
+        ],
+        "earthVisible": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "sunVisibleFraction": 0.42857142857142855,
+        "earthVisibleFraction": 0.5714285714285714,
+        "longestDarknessHours": 4,
+        "longestEarthBlackoutHours": 2,
+        "longestEarthVisibleHours": 4
+      }
+    },
+    {
+      "name": "North seam",
+      "expectedSun": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "actual": {
+        "positionId": "analytic-seam",
+        "sunVisible": [
+          false,
+          true,
+          false,
+          true
+        ],
+        "earthVisible": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "sunVisibleFraction": 0.7142857142857143,
+        "earthVisibleFraction": 0.5714285714285714,
+        "longestDarknessHours": 1,
+        "longestEarthBlackoutHours": 2,
+        "longestEarthVisibleHours": 4
+      }
+    },
+    {
+      "name": "Zenith and nadir",
+      "actual": {
+        "positionId": "analytic-flat",
+        "sunVisible": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "earthVisible": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "sunVisibleFraction": 1,
+        "earthVisibleFraction": 0,
+        "longestDarknessHours": 0,
+        "longestEarthBlackoutHours": 7,
+        "longestEarthVisibleHours": 0
+      }
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,238 @@
+{
+  "status": "TRAINED_EXPERIMENTAL",
+  "seed": 2026,
+  "architecture": "19 \u2192 48 tanh \u2192 32 tanh \u2192 4 sigmoid; Adam; CPU NumPy",
+  "trainingCases": 2320,
+  "totalLabelledCases": 9000,
+  "splits": {
+    "validation": {
+      "cases": 480,
+      "meanAbsoluteError": [
+        0.11030067956826259,
+        0.13086284156645914,
+        0.10898579222315881,
+        0.1311983837779217
+      ],
+      "p95AbsoluteError": [
+        0.8664192223632273,
+        0.7678946350187923,
+        0.8378320615440963,
+        0.7827269057830023
+      ],
+      "constantBaselineMAE": [
+        0.3170412882286543,
+        0.7018601724993133,
+        0.31564639671421646,
+        0.7023535316605122
+      ],
+      "falseFeasibleCases": 10,
+      "missedFeasibleCases": 24,
+      "exactFeasibleCases": 369
+    },
+    "spatial_holdout": {
+      "cases": 580,
+      "meanAbsoluteError": [
+        0.15193124736000801,
+        0.09183046637730082,
+        0.15718195235405255,
+        0.09598784734134103
+      ],
+      "p95AbsoluteError": [
+        0.6345192187693917,
+        0.39006658174518183,
+        0.6159996708512521,
+        0.40923374941477
+      ],
+      "constantBaselineMAE": [
+        0.4197133072164646,
+        0.3063021010276879,
+        0.4198337040300652,
+        0.3020858016958262
+      ],
+      "falseFeasibleCases": 38,
+      "missedFeasibleCases": 11,
+      "exactFeasibleCases": 185
+    },
+    "temporal_holdout": {
+      "cases": 1440,
+      "meanAbsoluteError": [
+        0.4114001786470908,
+        0.4688385099940098,
+        0.41213009240960474,
+        0.47551423531779535
+      ],
+      "p95AbsoluteError": [
+        0.9940047791947639,
+        0.9084945344141669,
+        0.9916571662275875,
+        0.9098645979807893
+      ],
+      "constantBaselineMAE": [
+        0.45620583108123414,
+        0.21274767556387847,
+        0.4538332848704614,
+        0.2083608395764908
+      ],
+      "falseFeasibleCases": 542,
+      "missedFeasibleCases": 25,
+      "exactFeasibleCases": 503
+    },
+    "joint_holdout": {
+      "cases": 360,
+      "meanAbsoluteError": [
+        0.24890752874800365,
+        0.5101940245155925,
+        0.2640236352438564,
+        0.5445853955263
+      ],
+      "p95AbsoluteError": [
+        0.8302476726752328,
+        0.9112305465893129,
+        0.8451918657381109,
+        0.9267033813546521
+      ],
+      "constantBaselineMAE": [
+        0.23990488448731984,
+        0.3221751918559571,
+        0.23860494634874949,
+        0.3031560091110198
+      ],
+      "falseFeasibleCases": 91,
+      "missedFeasibleCases": 18,
+      "exactFeasibleCases": 188
+    }
+  },
+  "history": [
+    {
+      "epoch": 10,
+      "validationMSE": 0.13740656102765766
+    },
+    {
+      "epoch": 20,
+      "validationMSE": 0.11944792852537073
+    },
+    {
+      "epoch": 30,
+      "validationMSE": 0.10392357312472784
+    },
+    {
+      "epoch": 40,
+      "validationMSE": 0.10308906805045136
+    },
+    {
+      "epoch": 50,
+      "validationMSE": 0.09105086823450464
+    },
+    {
+      "epoch": 60,
+      "validationMSE": 0.09542610313653398
+    },
+    {
+      "epoch": 70,
+      "validationMSE": 0.09854847237372619
+    },
+    {
+      "epoch": 80,
+      "validationMSE": 0.0759530712691369
+    },
+    {
+      "epoch": 90,
+      "validationMSE": 0.08136752645042972
+    },
+    {
+      "epoch": 100,
+      "validationMSE": 0.08700749271725683
+    },
+    {
+      "epoch": 110,
+      "validationMSE": 0.07648533178210228
+    },
+    {
+      "epoch": 120,
+      "validationMSE": 0.07806378839415952
+    },
+    {
+      "epoch": 130,
+      "validationMSE": 0.08574376286215712
+    },
+    {
+      "epoch": 140,
+      "validationMSE": 0.0831517718384181
+    }
+  ],
+  "trainingAndEvaluationSeconds": 2.373726500001794,
+  "batchInferenceMilliseconds": 33.866100005980115,
+  "exactRustGenerationMilliseconds": 7115.555200000028,
+  "featureNames": [
+    "east/200",
+    "north/200",
+    "height/10",
+    "duration/336",
+    "arrival/29",
+    "horizonMean/40",
+    "horizonStd/20",
+    "horizonMin/40",
+    "horizonMax/40",
+    "horizonCos1/20",
+    "horizonSin1/20",
+    "horizonCos2/20",
+    "horizonSin2/20",
+    "sunSinAz",
+    "sunCosAz",
+    "sunEl/10",
+    "earthSinAz",
+    "earthCosAz",
+    "earthEl/10"
+  ],
+  "targetNames": [
+    "sunVisibleFraction",
+    "earthVisibleFraction",
+    "longestDarkness/window",
+    "longestEarthVisible/window"
+  ],
+  "sourceManifest": {
+    "schemaVersion": 1,
+    "sourceStudySha256": "c37a44b5bd43bd5d0e05a5f319ed2775bdfa0b25e56b681147739e1165ea2abc",
+    "wasmSha256": "6bb8dce41129d3898fc5abd8777f3d168258375a5952b14340d04d29fab67ffd",
+    "features": [
+      "east/200",
+      "north/200",
+      "height/10",
+      "duration/336",
+      "arrival/29",
+      "horizonMean/40",
+      "horizonStd/20",
+      "horizonMin/40",
+      "horizonMax/40",
+      "horizonCos1/20",
+      "horizonSin1/20",
+      "horizonCos2/20",
+      "horizonSin2/20",
+      "sunSinAz",
+      "sunCosAz",
+      "sunEl/10",
+      "earthSinAz",
+      "earthCosAz",
+      "earthEl/10"
+    ],
+    "targets": [
+      "sunVisibleFraction",
+      "earthVisibleFraction",
+      "longestDarkness/window",
+      "longestEarthVisible/window"
+    ],
+    "cases": 9000,
+    "exactEngineMilliseconds": 7115.555200000028,
+    "totalGenerationMilliseconds": 7298.2173,
+    "scope": "One Site04 region; physics-generated sampled geometric labels, not mission success labels. Full future ephemeris is not passed as model features."
+  },
+  "deploymentDecision": "RESEARCH_ONLY",
+  "limitations": [
+    "One geographical region. Spatial holdouts are nearby positions, not an independent lunar site.",
+    "Temporal/joint holdouts start at least eight days after all training target intervals end. Validation contains shorter windows.",
+    "Model labels are sampled geometric simulator outputs, not observations of mission success.",
+    "Timing is a CPU batch inference measurement versus separately measured Rust calls including JSON; not an end-to-end speedup claim.",
+    "False feasible predictions require exact Rust verification. No model result certifies mission viability.",
+    "No production surrogate integration is justified by this experiment alone."
+  ]
+}

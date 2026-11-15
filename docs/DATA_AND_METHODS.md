@@ -1,88 +1,27 @@
 # Data, derivation and reproduction
 
-## Runtime payload
+The runtime payload is `frontend/src/data/shackletonStudy.json`. It includes its source manifest, measured-height crop, 25 point coordinates, position-specific ephemerides and six separately baked horizon profiles per point. The surface source SHA256 is `38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758`.
 
-The application loads `public/data/baked_lunar_sites.json` (about 2.05 MB, compact JSON).
-It contains 15 records: **14 real south-polar sites and one synthetic calibration plane**.
-Each record carries:
+The [NASA Site04 5 m surface product](https://pgda.gsfc.nasa.gov/products/78/) supplies the local crop and nearby horizon. A bounded cache from the [regional 20 m product](https://pgda.gsfc.nasa.gov/products/90/) supplies distant terrain. Reproduction currently expects the original source files and DE421 kernels in the preserved teammate snapshot; inspect literal input paths at the top of `frontend/scripts/bakeStudy.py`. That dependency is explicit; a clean checkout can run the shipped application without those inputs, but cannot rebake it until they are supplied. Python needs NumPy, rasterio and spiceypy. The script writes the generated payload atomically and rejects missing terrain.
 
-- `site_metadata` — coordinates, reference elevation, slope, RMS height uncertainty,
-  reference frame, native pixel size, PSR proximity, and mission context.
-- `provenance` — source URLs, product identifiers, raster windows, ray parameters, access
-  time, and citation. Real records are marked `terrain_fidelity: lola_published`;
-  `MOCK-01` is marked `synthetic`.
-- `heightmap` — the 100 × 100, 16-bit visual height patch and its quantization metadata.
-- `horizon_mask_360` — 360 horizon elevations `h0_deg` and controlling obstacle distances
-  `d_crit_m`, sampled to a 30 km radius with lunar curvature correction.
-- `dem_grid_101` — a 101 × 101 elevation grid at 5 m spacing for slope and skyline sampling.
-- `dispersion_grid_5x5` — 25 cells at ±200 m in 100 m steps, with elevation, relative height,
-  published slope, published height uncertainty, and a display status.
-- `ephemeris` — 2,185 hourly Sun/Earth azimuth and elevation samples from
-  2026-12-01T00:00Z through 2027-03-02T00:00Z.
+Azimuth is clockwise from geographic north, independently of the polar projection grid. Spherical geographic destination rays are sampled bilinearly; radial terrain vectors are transformed into the observer tangent plane with lunar reference radius 1,737,400 m. The local ray spacing is 5 m through 2 km, then 25 m through 30 km. Each height gets its own horizon maximum, allowing the controlling obstacle to change. Ground-level celestial vectors are reused at supported heights; metadata stores the maximum calculated direction approximation (~0.00000161°).
 
-The full multi-site bake manifest, including kernel hashes, is
-`data/lola/bake_manifest.json`.
+Ephemeris is geometric (`NONE` aberration correction) in MOON_ME with compatible DE421 kernels. Hourly samples are treated as interval-start values, with an explicit exclusive endpoint. This is sampled geometry, not continuous event root-solving. The Rust energy model uses Wh, W and hours consistently; partial Sun uses a circular disk against a locally flat horizon. Solar incidence, azimuth tracking, usable capacity and power loads are assumptions. Surface equilibrium is an instantaneous radiative calculation, not spacecraft survival.
 
-## Terrain sources
+`docs/validation/resolution-checks.json` records centre-only checks. Range sensitivity is significant; 30 km is not an established converged horizon. `docs/validation/search-check.json` records an actual built-worker/WASM check, not browser verification. Measurements are single-machine runs, not hardware guarantees.
 
-| Records | Source | Native resolution |
-|---|---|---|
-| 12 PGDA sites | `LDEM_80S_20MPP_ADJ`, `LDSM_80S_20MPP_ADJ`, and error rasters | 20 m/pixel |
-| PGDA-04 | PGDA Product 78 `Site04_final_adj_5mpp_surf` and companions | 5 m/pixel |
-| ISRO-CY3 | `LDEM_60S_60MPP_ADJ` | 60 m/pixel |
-| MOCK-01 | Procedural flat plane | synthetic |
+UI reference direction was derived from public Tidecrest, OTHERSPACE, Globe To Map Transform and Kerrline/Photonic Lanes previews, with Attune secondary. Saved frames and the distinction between inspected visuals and unverified transitions are recorded in `docs/ui-inspiration/REFERENCE_COMPARISON.md`. No paid template source was imported.
 
-PSR distances use `LPSR_80S_20MPP_ADJ`. ISRO-CY3 is outside that product's coverage and is
-reported as `null` / `n/a`; the merge tool enforces that exception explicitly.
+Space Grotesk is bundled with its SIL Open Font License in `frontend/public/fonts/`. Three.js and its dependencies retain their upstream licenses. NASA products and source URLs are attributed in the runtime provenance; the code's MIT license does not relicense upstream datasets or artwork.
 
-## Geometry and ephemeris
+The new Moon overview uses NASA SVS's [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/) display mosaic, credited to NASA's Scientific Visualization Studio / Ernie Wright and the LROC/LOLA teams. The local asset `frontend/public/textures/moon-lroc-2k.jpg` was downloaded from the page's `lroc_color_2k.jpg` link; SHA256 `f7130a1822681fa7512d7dcfd40db8c10b9ba4f06777910348698260ed7a2170`. NASA describes this mosaic as optimized for aesthetics; it never supplies our local scientific elevation or visibility calculations.
 
-Azimuth is clockwise from geographic north, independently of the polar projection grid.
-Spherical destination rays are sampled bilinearly; radial terrain vectors are transformed
-into the observer tangent plane with lunar reference radius 1,737,400 m. The ray step is
-`max(pixel_size, 25 m)` out to 30 km. The horizon is stored in 360 one-degree bins, so narrow
-sub-degree ridges and boulders below the native pixel size are not resolved.
+The scale lander is generic illustration, not verified spacecraft CAD. The independent probe height is referenced to ground at the actual selected position. Range lines are bilinearly draped on the measured raster and clipped at its boundaries. Ground camera placement is for presentation; its regional skyline overlay carries the angles calculated at the selected point, not a new horizon computation at the camera. One-click examples are Shackleton exploration cases, not historic mission replays; `frontend/scripts/verifyScenarios.mjs` checks them against compiled WASM.
 
-DE421 Sun/Earth directions are geometric and expressed in MOON_ME, using the archived SPK,
-leap-second kernel, lunar frame kernel, and orientation PCK. Hourly samples are treated as
-interval-start values with an explicit exclusive endpoint. This is sampled geometry, not
-continuous event root-solving. The compiled WASM engine applies the same series to the
-terrain horizon for each mast height and dispersion offset.
 
-## Derived mission model
+Latest display assets supplied by the user are catalogued with SHA256 and attribution limits in `frontend/public/display-assets.json`. NASA's CGI Moon Kit and Blue Marble collection pages were retrieved; the exact converted GLB and JPEG bytes have not been matched to upstream originals. The compressed LRO model requires the bundled Three.js Meshopt decoder; `frontend/scripts/verifyDisplayAssets.mjs` actually decodes111 compressed buffers. Orbit radius/time and the globe bump strength are illustrative. Earth direction follows the topocentric data; its map orientation and shader rim are display effects, not reconstructed weather or Rayleigh scattering validation. The Sun core uses approximately0.53-degree display diameter, with an artistic corona. JetBrains Mono is self-hosted with its OFL license.
 
-The Rust/WASM engine combines solar incidence and penumbra, a battery state-of-charge model,
-cryogenic capacity derating, an avionics thermal model, and geometric Earth visibility. A
-5 × 5 dispersion grid is evaluated over the configured mission duration, and a 30-day
-launch-slip matrix is scanned independently. The Pareto solver ranks real sites on solar
-persistence, Earth visibility, slope, and PSR proximity, with survival as a hard constraint.
-`MOCK-01` never enters that ranking, and an empty frontier is returned if no site survives.
+Terrain cell fills represent the active hard-constraint check at each computed point, not a certificate for every metre inside a cell. The100m cells reuse exact native terrain triangles and are clipped to the mesh; grey is unavailable, green meets and rose exceeds selected limits. No fabricated marginal/loss-trap label or0.1ms guarantee is used. Sky tracks cover the selected recorded stay, break at the north seam, and do not invent a full27.3-day libration loop for a7-day analysis.
 
-Power, thermal, and hardware values are exploratory assumptions. Geometric Earth visibility
-is not an RF link budget, DSN schedule, or antenna-pattern model. Surface equilibrium is an
-instantaneous radiative calculation, not a survival certification.
 
-## Reproduction
-
-The terrain and ephemeris bakers are in `backend/tools/`. The parallel bake outputs are
-validated and merged with:
-
-```powershell
-python backend/tools/merge_lola_parts.py          # publish
-python backend/tools/merge_lola_parts.py --check  # validate only
-```
-
-The merge refuses duplicate or missing sites, horizons shorter than 360 samples, malformed
-101 × 101 grids, incomplete 5 × 5 dispersion sets, hourly series shorter than 2,185 samples,
-or an unexplained missing PSR value. It writes the runtime JSON and refreshes the manifest.
-
-`npm test` runs the 11 system/integration checks and 113 in-app science checks. `npm run
-build` performs the TypeScript check and production bundle.
-
-## Imagery and attribution
-
-The landing Moon uses NASA SVS's CGI Moon Kit display mosaic, credited to NASA's Scientific
-Visualization Studio / Ernie Wright and the LROC/LOLA teams. It is aesthetic imagery and
-never supplies the scientific elevation or visibility calculations. NASA products and
-source URLs are attributed in the runtime provenance; the code's MIT license does not
-relicense upstream datasets or artwork.
+`frontend/scripts/verifyAnalyticGeometry.mjs` compares actual WASM to hand-derived geometric expectations: unequal interval weighting, continuous durations, north-seam interpolation and zenith/nadir limits. Results are saved in `docs/validation/analytic-geometry-checks.json` and run with `npm test`. These are algorithm verification cases; they do not provide an independent observational or raster-derived validation of the lunar study.

@@ -1,0 +1,23 @@
+{
+  "assets": [
+    {
+      "path": "models/lro-satellite.glb",
+      "source": "https://science.nasa.gov/learn/3d-resources/",
+      "provenance": "User-supplied NASA GSFC/LRO attribution; exact upstream converted GLB not independently matched",
+      "sha256": "a737e4efb267064d79ea101695f702fc27c664283c3c75c2b2eead75899649bf"
+    },
+    {
+      "path": "textures/moon-bump-1k.jpg",
+      "source": "https://svs.gsfc.nasa.gov/4720/",
+      "provenance": "User-supplied derivative; bump is display shading, not the analytical DEM",
+      "sha256": "6d93f887e7d8bedfe35ab89ba785e5e3ca12381bd092a5e6abe2c707dda8bb98"
+    },
+    {
+      "path": "textures/earth-blue-marble.jpg",
+      "source": "https://science.nasa.gov/earth/earth-observatory/collections/blue-marble/",
+      "provenance": "User-supplied NASA Earth Observatory/MODIS attribution; display map",
+      "sha256": "2faa400d1eade3bc44caf6750d1b772bd9bbb6d87362c02bc7c3304e78fa0a9d"
+    }
+  ],
+  "limitations": "LRO orbit is illustrative and compressed in time, not propagated mission ephemeris. Moon bump scale, Earth texture orientation and atmosphere are display effects. Local visibility continues to use compiled LOLA/DE421 data."
+}
