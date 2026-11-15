@@ -1,0 +1,18 @@
+# Data and method references
+
+1. **NASA GSFC PGDA Product 78 — High-Resolution LOLA Topography for Lunar South Pole Sites.** Product description, 5 m/pixel elevation, slope, and uncertainty rasters; MOON_ME / DE421 reference information. The baked reference site is Site04 (Shackleton Rim), not Mons Mouton. [Product page](https://pgda.gsfc.nasa.gov/products/78).
+2. **NASA GSFC PGDA Product 104 — Enhanced Topography Models for Selected Lunar South Pole Regions with Shape-from-Shading.** [Product page](https://pgda.gsfc.nasa.gov/products/104); [archived 2025 dataset](https://zenodo.org/records/17954508), DOI: 10.60903/gsfcpgda-sfs-a3clr; related article DOI: 10.3847/PSJ/ae5b70.
+3. Barker, M. K., et al. (2021). “Improved LOLA elevation maps for south pole landing sites: Error estimates and their impact on illumination conditions.” *Planetary and Space Science*, 203, 105119. [https://doi.org/10.1016/j.pss.2020.105119](https://doi.org/10.1016/j.pss.2020.105119).
+4. Mazarico, E., et al. (2011). “Illumination conditions of the lunar polar regions using LOLA topography.” *Icarus*, 211(2), 1066–1081. [https://doi.org/10.1016/j.icarus.2010.10.030](https://doi.org/10.1016/j.icarus.2010.10.030).
+5. NASA GSFC Scientific Visualization Studio (2025). **Moon Phase and Libration, 2026**, SVS 5587. Hourly geocentric phase, libration, subsolar/subearth points, and related quantities. [Project page](https://svs.gsfc.nasa.gov/5587/); [hourly JSON](https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005587/mooninfo_2026.json).
+6. NASA/JPL Solar System Dynamics. **JPL Horizons API** for observer ephemerides; use the selected surface-site coordinates and record time scale, observer definition, and reference frame. [API documentation](https://ssd-api.jpl.nasa.gov/doc/horizons.html).
+7. Folkner, W. M., Williams, J. G., & Boggs, D. H. (2009). “The Planetary and Lunar Ephemeris DE 421.” *Interplanetary Network Progress Report*, 42-178, 1–34. [JPL report](https://ipnpr.jpl.nasa.gov/progress_report/42-178/178C.html).
+8. Folkner, W. M., Williams, J. G., & Boggs, D. H. (2008). **DE421 Planetary and Lunar Ephemeris: Table 1 mass parameters for planetary bodies and systems.** [NAIF/JPL DE421 announcement and technical report](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421_announcement.pdf).
+9. NASA/JPL NAIF. **Leap-seconds kernel (LSK)** required for UTC-to-ephemeris-time conversion. [NAIF LSK archive](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/).
+10. NASA/JPL NAIF. **DE421 planetary SPK archive:** [`de421.bsp`](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/); **DE421 lunar orientation and ME-frame kernels:** [`moon_pa_de421_1900-2050.bpc`](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/), `moon_080317.tf`, and `pck00010.tpc`.
+11. NASA/JPL NAIF. **SPKCPO constant-position observer routine**, used to calculate geometric target states from a fixed surface observer. [CSPICE reference](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkcpo_c.html).
+12. **NASA GSFC PGDA Product 90 — Adjusted LOLA polar DEM.** The 20 m/pixel 80S regional DEM used to fill terrain rays outside the local Site04 raster footprint; Barker et al. (2023), DOI 10.3847/PSJ/acf3e1. [Product page](https://pgda.gsfc.nasa.gov/products/90).
+
+## Data handling note
+
+The synthetic fallback is original procedural geometry and is not based on any cited dataset. For each baked site, retain original GeoTIFF filenames and local provenance in the generated JSON; cite the specific product and source files in project materials.

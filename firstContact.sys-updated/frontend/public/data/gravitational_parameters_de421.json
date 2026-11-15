@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "model_id": "JPL-DE421",
+  "model_name": "JPL Development Ephemeris 421",
+  "units": "km^3/s^2",
+  "ratio_definition": "GM_sun / GM_body; derived from the GM values below",
+  "purpose": "Reference constants for the DE421 baseline and user-editable sensitivity scenarios",
+  "source": {
+    "title": "DE421 Planetary and Lunar Ephemeris",
+    "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421_announcement.pdf",
+    "table": "Table 1: Mass parameters of planetary bodies/systems used in DE 421"
+  },
+  "scenario_policy": "Edits are scenario inputs. They must not be labeled DE421 output unless the ephemeris is recomputed with a documented propagation model and initial state vectors.",
+  "bodies": [
+    {"id":"sun","name":"Sun","kind":"star","gm_km3_s2":132712440040.9440,"ratio_to_sun":1.0,"editable":true},
+    {"id":"mercury","name":"Mercury","kind":"planetary_system","gm_km3_s2":22032.0900,"ratio_to_sun":6023597.400017,"editable":true},
+    {"id":"venus","name":"Venus","kind":"planetary_system","gm_km3_s2":324858.5920,"ratio_to_sun":408523.718655,"editable":true},
+    {"id":"earth","name":"Earth","kind":"planetary_system","gm_km3_s2":398600.436233,"ratio_to_sun":332946.048166,"editable":true},
+    {"id":"mars","name":"Mars","kind":"planetary_system","gm_km3_s2":42828.375214,"ratio_to_sun":3098703.590267,"editable":true},
+    {"id":"jupiter","name":"Jupiter","kind":"planetary_system","gm_km3_s2":126712764.800000,"ratio_to_sun":1047.348625,"editable":true},
+    {"id":"saturn","name":"Saturn","kind":"planetary_system","gm_km3_s2":37940585.200000,"ratio_to_sun":3497.901768,"editable":true},
+    {"id":"uranus","name":"Uranus","kind":"planetary_system","gm_km3_s2":5794548.600000,"ratio_to_sun":22902.981613,"editable":true},
+    {"id":"neptune","name":"Neptune","kind":"planetary_system","gm_km3_s2":6836535.000000,"ratio_to_sun":19412.237346,"editable":true},
+    {"id":"pluto","name":"Pluto","kind":"planetary_system","gm_km3_s2":977.000000,"ratio_to_sun":135836683.767599,"editable":true},
+    {"id":"moon","name":"Moon","kind":"natural_satellite","gm_km3_s2":4902.800076,"ratio_to_sun":27068703.185436,"editable":true},
+    {"id":"earth_moon","name":"Earth-Moon system","kind":"planetary_system","gm_km3_s2":403503.236310,"ratio_to_sun":328900.559150,"editable":true}
+  ]
+}

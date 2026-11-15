@@ -1,0 +1,23 @@
+{
+  "manifest_version": 1,
+  "extracted_at": "2026-11-14T15:35:00Z",
+  "lola_dem": {
+    "source_file": "Site04_final_adj_5mpp_surf.tif",
+    "sha256": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+    "crs_proj": "Polar_Stereographic (R=1737400m)",
+    "resolution_m_per_px": 5.0,
+    "window": {
+      "col_off": 1550,
+      "row_off": 1550,
+      "width": 100,
+      "height": 100
+    }
+  },
+  "kernels": {
+    "de421.bsp": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+    "moon_080317.tf": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993",
+    "moon_pa_de421_1900-2050.bpc": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+    "pck00010.tpc": "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"
+  }
+}

@@ -20,8 +20,11 @@
     "test:regions": "node --experimental-strip-types scripts/verifyRegions.mjs"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "lucide-react": "^1.73.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.5",
     "three": "^0.180.0"
   },
   "devDependencies": {
