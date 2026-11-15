@@ -1,5 +1,8 @@
+import { createSkyBodies } from "./createSkyBodies";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
   globePosition,
@@ -31,6 +34,7 @@ type Props = {
   lookAt: "sun" | "earth";
   focusVersion: number;
   keptPosition?: string;
+  pointStatus: Record<string, boolean>;
 };
 
 /** Shared display world. Overview art and skyline overlay never replace the exact engine. */
@@ -128,6 +132,80 @@ export default function LunarWorld(props: Props) {
       },
     );
     textures.push(texture);
+    const loadDisplayTexture = (
+      url: string,
+      ready: (t: THREE.Texture) => void,
+    ) => {
+      const t = new THREE.TextureLoader().load(
+        url,
+        (loaded) => {
+          if (disposed) {
+            loaded.dispose();
+            return;
+          }
+          ready(loaded);
+          request();
+        },
+        undefined,
+        () => {
+          if (!disposed)
+            setError(
+              "A display asset could not load. Exact analysis remains available.",
+            );
+        },
+      );
+      textures.push(t);
+      return t;
+    };
+    loadDisplayTexture("/textures/moon-bump-1k.jpg", (t) => {
+      moonMat.bumpMap = t;
+      moonMat.bumpScale = 0.035;
+      moonMat.roughness = 0.94;
+      moonMat.metalness = 0.02;
+      moonMat.needsUpdate = true;
+    });
+    const lroOrbit = new THREE.Group();
+    globe.add(lroOrbit);
+    let orbitPhase = 0,
+      previousTime = 0;
+    new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(
+      "/models/lro-satellite.glb",
+      (asset) => {
+        const model = asset.scene;
+        if (disposed) {
+          model.traverse((o) => {
+            if (o instanceof THREE.Mesh) {
+              o.geometry.dispose();
+              for (const m of Array.isArray(o.material)
+                ? o.material
+                : [o.material])
+                m.dispose();
+            }
+          });
+          return;
+        }
+        const bounds = new THREE.Box3().setFromObject(model);
+        const size = bounds.getSize(new THREE.Vector3());
+        const scale = 0.18 / Math.max(size.x, size.y, size.z, 0.001);
+        model.position.copy(
+          bounds.getCenter(new THREE.Vector3()).multiplyScalar(-scale),
+        );
+        model.scale.setScalar(scale);
+        const satellite = new THREE.Group();
+        satellite.add(model);
+        satellite.position.set(2.05, 0, 0);
+        lroOrbit.add(satellite);
+        request();
+      },
+      undefined,
+      () => {
+        if (!disposed)
+          setError(
+            "LRO display model unavailable. Terrain and exact analysis remain available.",
+          );
+      },
+    );
+
     const locator = new THREE.Mesh(
       new THREE.SphereGeometry(0.035, 16, 12),
       new THREE.MeshBasicMaterial({ color: 0x80d4d3 }),
@@ -231,6 +309,42 @@ export default function LunarWorld(props: Props) {
         region.add(m);
         return m;
       });
+    const overlayPositions = geo.getAttribute("position").clone();
+    for (let i = 0; i < overlayPositions.count; i++)
+      overlayPositions.setY(i, overlayPositions.getY(i) + 0.08);
+    const cells = points.map((p) => {
+      const selectedIndices: number[] = [];
+      for (let i = 0; i < indices.length; i += 3) {
+        const triangle = indices.slice(i, i + 3);
+        const east =
+          triangle.reduce((sum, j) => sum + overlayPositions.getX(j), 0) / 3;
+        const north =
+          -triangle.reduce((sum, j) => sum + overlayPositions.getZ(j), 0) / 3;
+        if (
+          east >= p.eastMeters - 50 &&
+          east < p.eastMeters + 50 &&
+          north >= p.northMeters - 50 &&
+          north < p.northMeters + 50
+        )
+          selectedIndices.push(...triangle);
+      }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", overlayPositions);
+      geometry.setIndex(selectedIndices);
+      const mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshBasicMaterial({
+          color: 0x8797a3,
+          transparent: true,
+          opacity: 0.12,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }),
+      );
+      mesh.userData.id = p.id;
+      region.add(mesh);
+      return mesh;
+    });
     const selectedRing = new THREE.Mesh(
       new THREE.RingGeometry(8, 9, 64),
       new THREE.MeshBasicMaterial({
@@ -297,14 +411,15 @@ export default function LunarWorld(props: Props) {
     sun.shadow.normalBias = 0.003;
     sun.shadow.bias = -0.00001;
     scene.add(sun, sun.target);
-    const sunMark = new THREE.Mesh(
-      new THREE.SphereGeometry(0.07, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xffd18b }),
-    );
-    const earthMark = new THREE.Mesh(
-      new THREE.SphereGeometry(0.065, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0x8bced7 }),
-    );
+    const skyBodies = createSkyBodies();
+    const sunMark = skyBodies.sun,
+      earthMark = skyBodies.earth;
+    textures.push(...skyBodies.textures);
+    loadDisplayTexture("/textures/earth-blue-marble.jpg", (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      skyBodies.material.uniforms.map.value = texture;
+      skyBodies.material.uniforms.loaded.value = true;
+    });
     scene.add(sunMark, earthMark);
     const skyline = new THREE.LineLoop(
       new THREE.BufferGeometry(),
@@ -429,7 +544,13 @@ export default function LunarWorld(props: Props) {
         controls.target.lerpVectors(tween.targetFrom, tween.targetTo, ease);
         if (t === 1) tween = null;
       }
+      const dt = Math.min((time - previousTime) / 1000, 0.05);
+      previousTime = time;
       const animate = live.motion && !reduced.matches;
+      if (animate && globe.visible) orbitPhase += dt * 0.12;
+      lroOrbit.rotation.z = orbitPhase;
+      lroOrbit.visible = live.view === "overview";
+
       globe.visible = live.view === "overview" || live.intro;
       globe.position.x = live.intro && camera.aspect > 1.2 ? 1.65 : 0;
       region.visible = live.view !== "overview";
@@ -456,6 +577,13 @@ export default function LunarWorld(props: Props) {
       live = next;
       selectedRing.visible = next.view !== "ground";
       for (const marker of markers) marker.visible = next.view !== "ground";
+      for (const cell of cells) {
+        const meets = next.pointStatus[cell.userData.id];
+        cell.visible = next.view === "terrain";
+        cell.material.color.setHex(
+          meets === undefined ? 0x8797a3 : meets ? 0x5bb9a2 : 0xc77d78,
+        );
+      }
       selectedRing.position.set(
         selectedPoint().eastMeters,
         selectedPoint().elevationMeters! - terrain.referenceElevationMeters + 1,
@@ -579,6 +707,9 @@ export default function LunarWorld(props: Props) {
           ).multiplyScalar(10),
         );
       sun.target.position.copy(eye);
+      skyBodies.material.uniforms.sunDirection.value.set(
+        ...skyDirection(next.sun.az, next.sun.el),
+      );
       sunMark.position
         .copy(eye)
         .add(
@@ -684,7 +815,10 @@ export default function LunarWorld(props: Props) {
       if (live.view === "overview") {
         if (ray.intersectObject(locator).length) live.onEnter();
       } else {
-        const hit = ray.intersectObjects(markers)[0];
+        const hit = ray.intersectObjects([
+          ...markers,
+          ...cells.filter((c) => c.visible),
+        ])[0];
         if (hit) live.onSelect(hit.object.userData.id);
       }
     };

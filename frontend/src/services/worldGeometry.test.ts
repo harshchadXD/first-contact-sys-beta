@@ -3,6 +3,28 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { skyDirection, globePosition, skylineAt } from "./worldGeometry.ts";
 import { terrainHeightAt } from "./worldGeometry.ts";
+import { recordedSkyTrack } from "./worldGeometry.ts";
+
+test("recorded tracks break at the north seam and preserve ordinary intervals", () => {
+  assert.equal(
+    recordedSkyTrack(
+      [358, 359, 1, 2],
+      [1, 2, 3, 4],
+      (v) => v,
+      (v) => v,
+    ),
+    "M358,1 L359,2 M1,3 L2,4",
+  );
+  assert.equal(
+    recordedSkyTrack(
+      [],
+      [],
+      (v) => v,
+      (v) => v,
+    ),
+    "",
+  );
+});
 test("display directions preserve geographic cardinal directions and zenith", () => {
   for (const [az, el, expected] of [
     [0, 0, [0, 0, -1]],

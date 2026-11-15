@@ -4,6 +4,7 @@ Outputs only frontend-owned data and a local ignored raster cache. No source mut
 import sys, json, math, hashlib, time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 SNAP=ROOT/'shaurya_work/Firstcontact.sys - Copy'
 for folder in ['.vendor','.raster-vendor']: sys.path.insert(0,str(SNAP/'backend'/folder))
 import numpy as np
@@ -54,14 +55,20 @@ def self_check():
     assert abs(float(sample(a,Affine(1,0,0,0,1,0),np.array([1.]),np.array([1.]))[0])-15)<1e-10
     print('Analytic checks PASS: projection roundtrip, geographic cardinal directions, curved sphere and bilinear interpolation.',flush=True)
 
-def main():
+def main(site='Site04', output=None):
+    global CACHE, OUT
     self_check();t0=time.perf_counter()
-    path=SNAP/'data/dem/Site04/Site04_final_adj_5mpp_surf.tif'
+    template=ROOT/'frontend/src/data/shackletonStudy.json'
+    local_dir=SNAP/'data/dem/Site04' if site=='Site04' else ROOT/'.tools/cache'/site
+    CACHE=ROOT/f'.tools/cache/{site.lower()}-regional.tif'
+    OUT=Path(output) if output else template
+    label={'Site04':'Shackleton ridge candidate','Site01':'Connecting Ridge candidate'}[site]
+    path=local_dir/f'{site}_final_adj_5mpp_surf.tif'
     with rasterio.open(path) as ds:
         local=ds.read(1,masked=True).astype('float32').filled(np.nan);tr=ds.transform
         # Reproducible exploratory candidate: highest valid interior pixel with slope < 6 degrees.
         # This is an algorithm-selected terrain sample, not an official NASA landing target.
-        with rasterio.open(SNAP/'data/dem/Site04/Site04_final_adj_5mpp_slp.tif') as sd:
+        with rasterio.open(local_dir/f'{site}_final_adj_5mpp_slp.tif') as sd:
             candidate_slopes=sd.read(1,masked=True).filled(np.nan)
         valid=np.isfinite(local)&np.isfinite(candidate_slopes)&(candidate_slopes<6)
         valid[:150]=False;valid[-150:]=False;valid[:,:150]=False;valid[:,-150:]=False
@@ -70,11 +77,13 @@ def main():
         x0,y0=ds.xy(int(centre_row),int(centre_col))
         print('Selected exploratory ridge pixel:',centre_row,centre_col,'height',float(local[centre_row,centre_col]),'slope',float(candidate_slopes[centre_row,centre_col]),flush=True)
         lat0,lon0=geographic(x0,y0)
+        del candidate_slopes,valid
         if not CACHE.exists():
             CACHE.parent.mkdir(parents=True,exist_ok=True)
             print('Reading only a 64 km regional COG window, not the 2.6 GB product.',flush=True)
-            with rasterio.Env(GDAL_HTTP_TIMEOUT='30',GDAL_HTTP_MULTIRANGE='SERIAL',GDAL_HTTP_MAX_RETRY='3',GDAL_HTTP_RETRY_DELAY='2',CPL_VSIL_CURL_CHUNK_SIZE='262144',GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR',CPL_VSIL_CURL_ALLOWED_EXTENSIONS='.TIF'):
-                with rasterio.open('/vsicurl/'+SOURCE) as region:
+            with rasterio.Env(GDAL_CACHEMAX=16000000,GDAL_NUM_THREADS="1",GDAL_HTTP_TIMEOUT='30',GDAL_HTTP_MULTIRANGE='SERIAL',GDAL_HTTP_MAX_RETRY='3',GDAL_HTTP_RETRY_DELAY='2',CPL_VSIL_CURL_CHUNK_SIZE='262144',GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR',CPL_VSIL_CURL_ALLOWED_EXTENSIONS='.TIF'):
+                from httpRangeReader import regional_opener
+                with rasterio.open(SOURCE,opener=regional_opener) as region:
                     assert abs(region.crs.ellipsoid.semi_major_metre-R)<1 if hasattr(region.crs,'ellipsoid') else True
                     win=from_bounds(x0-32000,y0-32000,x0+32000,y0+32000,region.transform).round_offsets().round_lengths()
                     profile=region.profile.copy();profile.update(width=int(win.width),height=int(win.height),transform=region.window_transform(win),count=1,compress='deflate',tiled=True)
@@ -89,8 +98,8 @@ def main():
                     temporary.replace(CACHE)
         with rasterio.open(CACHE) as region:
             regional=region.read(1,masked=True).astype('float32').filled(np.nan);rt=region.transform
-        with rasterio.open(SNAP/'data/dem/Site04/Site04_final_adj_5mpp_slp.tif') as sd:slope=sd.read(1,masked=True).filled(np.nan)
-        with rasterio.open(SNAP/'data/dem/Site04/Site04_final_adj_5mpp_toterr.tif') as ed:err=ed.read(1,masked=True).filled(np.nan)
+        with rasterio.open(local_dir/f'{site}_final_adj_5mpp_slp.tif') as sd:slope=sd.read(1,masked=True).filled(np.nan)
+        with rasterio.open(local_dir/f'{site}_final_adj_5mpp_toterr.tif') as ed:err=ed.read(1,masked=True).filled(np.nan)
         def elevation(xs,ys):
             zs=sample(local,tr,xs,ys);missing=~np.isfinite(zs)
             if missing.any():zs[missing]=sample(regional,rt,xs[missing],ys[missing])
@@ -127,7 +136,7 @@ def main():
                 print(f'Horizons {len(points)}/25, all {len(HEIGHTS)} supported heights: {pid}',flush=True)
         kernels=SNAP/'data/kernels/de421'
         for name in ['naif0012.tls','de421.bsp','moon_pa_de421_1900-2050.bpc','moon_080317.tf','pck00010.tpc']:spice.furnsh(str(kernels/name))
-        old=json.load(open(OUT,encoding='utf-8'))
+        old=json.load(open(template,encoding='utf-8'))
         times=old['dataset']['ephemeris']['timestampsUtc']
         ets=np.array([spice.str2et(s) for s in times])
         vectors={body:np.array([spice.spkpos(body,float(et),'MOON_ME','NONE','MOON')[0] for et in ets])*1000 for body in ['SUN','EARTH']}
@@ -156,10 +165,19 @@ def main():
             e=direction@east;n=direction@north;u=direction@up
             dense_ep[prefix+'AzimuthDeg']=[float(v) for v in np.degrees(np.arctan2(e,n))%360]
             dense_ep[prefix+'ElevationDeg']=[float(v) for v in np.degrees(np.arctan2(u,np.hypot(e,n)))]
-        (ROOT/'.tools/cache/temporal-reference.json').write_text(json.dumps(dict(ephemeris=dense_ep,horizon=height_profiles['0:0']['5.0'],observerHeightMeters=5)))
+        (ROOT/('.tools/cache/temporal-reference.json' if site=='Site04' else f'.tools/cache/{site}-temporal-reference.json')).write_text(json.dumps(dict(ephemeris=dense_ep,horizon=height_profiles['0:0']['5.0'],observerHeightMeters=5)))
         spice.kclear()
         old['dataset']['positions']=positions;old['dataset']['ephemeris']=centre['ephemeris'];old['points']=points
-        old['dataset']['siteName']='Shackleton ridge candidate';old['dataset']['datasetId']='pgda-site04-ridge-geographic-de421'
+        old['dataset']['siteName']=label;old['dataset']['datasetId']=f'pgda-{site.lower()}-ridge-geographic-de421'
+        old['dataset']['provenance']['generatedAtUtc']=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')
+        old['sourceManifest']['extracted_at']=old['dataset']['provenance']['generatedAtUtc']
+        old['sourceManifest']['verifiedDemSha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+        if site!='Site04':
+            old['sourceManifest'].pop('originalBake',None)
+            old['sourceManifest']['downloadedSources']=json.loads((local_dir/'sources.json').read_text())
+        old['sourceManifest']['lola_dem']['source_file']=path.name
+        old['sourceManifest']['lola_dem']['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+        old['sourceManifest']['lola_dem']['downloadUrl']=f'https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/{site}/{path.name}'
         patch=ds.read(1,window=Window(int(centre_col)-50,int(centre_row)-50,100,100),masked=True).astype(float).filled(np.nan)
         assert np.isfinite(patch).all()
         old['terrain']=dict(columns=100,rows=100,spacingMeters=5,referenceElevationMeters=float(local[centre_row,centre_col]),elevationsMeters=[round(float(v),3) for v in patch.ravel()],gridNorthLongitudeDeg=float(np.degrees(lon0)))
@@ -168,7 +186,15 @@ def main():
         old['dataset']['provenance']['notes']=f'NASA-derived exploration: 25 position-specific 30 km horizons and per-position DE421 geometric ephemeris. Supported heights are separately baked. Ground-observer celestial vectors are reused at height; maximum computed direction approximation {height_direction_bound:.8f} degrees. Terrain sampling and finite range remain limitations. No landing or survival certification.'
         old['sourceManifest']['lola_dem']['window']=dict(col_off=int(centre_col)-50,row_off=int(centre_row)-50,width=100,height=100)
         old['sourceManifest']['correctedGeographicBake']=dict(centreRow=int(centre_row),centreColumn=int(centre_col),selectionMethod='Highest elevation interior source pixel with slope below 6 degrees; exploratory candidate, not official target',azimuthConvention='geographic north clockwise',horizonGeometry='exact spherical radial terrain in observer tangent plane',interpolation='bilinear raster heights',raySampling='5 m to 2 km; 25 m from 2 to 30 km',regionalSource=SOURCE,supportedHeightsMeters=HEIGHTS,maximumHeightDirectionApproximationDeg=height_direction_bound,positions=25,convergence=convergence,seconds=time.perf_counter()-t0)
+        OUT.parent.mkdir(parents=True,exist_ok=True)
         temporary=OUT.with_suffix('.tmp.json');temporary.write_text(json.dumps(old,separators=(',',':')),encoding='utf-8');temporary.replace(OUT)
         print('Wrote',OUT,'bytes',OUT.stat().st_size,'elapsed',time.perf_counter()-t0,flush=True)
         print('Angular sensitivity:',convergence,flush=True)
-if __name__=='__main__':main()
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--site',choices=['Site04','Site01'],default='Site04')
+    parser.add_argument('--output',type=Path)
+    args=parser.parse_args()
+    if args.site!='Site04' and not args.output: parser.error('A new region requires an explicit output; do not overwrite the existing study.')
+    main(args.site,args.output)

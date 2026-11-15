@@ -1,0 +1,250 @@
+{
+  "status": "PASS",
+  "scope": "Actual compiled WASM across two separately sourced regions; not independent mission validation",
+  "separationMeters": 10938.222536808284,
+  "positionWindows": 600,
+  "reports": [
+    {
+      "datasetId": "pgda-site04-ridge-geographic-de421",
+      "sourceSha256": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+      "centre": {
+        "latDeg": -89.78040317032016,
+        "lonDeg": -156.19695070476567,
+        "elevationMeters": 1739.1218261700897,
+        "dxMeters": 0,
+        "dyMeters": 0
+      },
+      "cases": [
+        {
+          "heightMeters": 0,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0,
+          "continuousEarthHours": 0,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 0.9940476190476191,
+          "continuousEarthHours": 167,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0.5,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0,
+          "continuousEarthHours": 0,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0.5,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 1,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0,
+          "continuousEarthHours": 0,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 1,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 2,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0,
+          "continuousEarthHours": 0,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 2,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 5,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.09523809523809523,
+          "continuousEarthHours": 16,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 5,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 10,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.17857142857142858,
+          "continuousEarthHours": 30,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 10,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        }
+      ]
+    },
+    {
+      "datasetId": "pgda-site01-ridge-geographic-de421",
+      "sourceSha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+      "centre": {
+        "latDeg": -89.43890921454617,
+        "lonDeg": -137.14356999445042,
+        "elevationMeters": 1959.4962158202381,
+        "dxMeters": 0,
+        "dyMeters": 0
+      },
+      "cases": [
+        {
+          "heightMeters": 0,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.005952380952380952,
+          "continuousEarthHours": 1,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0.5,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.02976190476190476,
+          "continuousEarthHours": 5,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 0.5,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 1,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.041666666666666664,
+          "continuousEarthHours": 7,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 1,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 2,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.05952380952380952,
+          "continuousEarthHours": 10,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 2,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 5,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.10119047619047619,
+          "continuousEarthHours": 17,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 5,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 10,
+          "arrivalDay": 0,
+          "sunFraction": 1,
+          "earthFraction": 0.17261904761904762,
+          "continuousEarthHours": 29,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        },
+        {
+          "heightMeters": 10,
+          "arrivalDay": 13,
+          "sunFraction": 1,
+          "earthFraction": 1,
+          "continuousEarthHours": 168,
+          "darknessHours": 0,
+          "minimumSocPct": 100
+        }
+      ]
+    }
+  ]
+}

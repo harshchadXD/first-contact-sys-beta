@@ -2314,3 +2314,42 @@ button:active:not(:disabled) {
   font: 10px var(--mono);
   color: #e0ebeb;
 }
+
+.oscilloscope svg {
+  width: 100%;
+  display: block;
+  margin: 20px 0;
+  touch-action: pan-y;
+}
+.oscilloscope svg text {
+  font: 10px var(--mono);
+  fill: #bdd1db;
+}
+
+.region-selector {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+  color: #c0d8dc;
+  font-size: 12px;
+}
+.region-selector select {
+  width: 100%;
+  padding: 12px;
+  background: #14212c;
+  color: #e1eeee;
+  border: 1px solid #47616c;
+  border-radius: 8px;
+}
+.region-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px;
+  background: #080c14ed;
+  color: #e1eeee;
+}

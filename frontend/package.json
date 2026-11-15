@@ -10,11 +10,14 @@
     "lint": "oxlint",
     "test:data": "node --experimental-strip-types src/data/runDataValidation.ts",
     "test:engine": "node --experimental-strip-types --test src/services/*.test.ts",
-    "test": "npm run test:data && npm run test:engine && npm run test:wasm && npm run test:scenarios",
+    "test": "npm run test:data && npm run test:engine && npm run test:wasm && npm run test:scenarios && npm run test:assets && npm run test:analytic && npm run test:regions",
     "preview": "vite preview",
     "test:wasm": "node --experimental-strip-types scripts/verifyWasm.mjs",
     "test:worker": "node --experimental-strip-types scripts/verifyWorker.mjs",
-    "test:scenarios": "node --experimental-strip-types scripts/verifyScenarios.mjs"
+    "test:scenarios": "node --experimental-strip-types scripts/verifyScenarios.mjs",
+    "test:assets": "node scripts/verifyDisplayAssets.mjs",
+    "test:analytic": "node scripts/verifyAnalyticGeometry.mjs",
+    "test:regions": "node --experimental-strip-types scripts/verifyRegions.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

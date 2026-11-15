@@ -82,3 +82,17 @@ export function terrainHeightAt(
     y * ((1 - x) * at(r + 1, c) + x * at(r + 1, c + 1))
   );
 }
+/** Break recorded tracks at the north seam instead of drawing a false full-width segment. */
+export function recordedSkyTrack(
+  azimuths: number[],
+  elevations: number[],
+  x: (v: number) => number,
+  y: (v: number) => number,
+): string {
+  return azimuths
+    .map(
+      (az, i) =>
+        `${!i || Math.abs(az - azimuths[i - 1]) > 180 ? "M" : "L"}${x(az)},${y(elevations[i])}`,
+    )
+    .join(" ");
+}

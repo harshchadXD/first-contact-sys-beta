@@ -1,6 +1,6 @@
 import { Component, lazy, Suspense } from "react";
 import type { ReactNode } from "react";
-const Explorer = lazy(() => import("./MissionControl"));
+const Explorer = lazy(() => import("./RegionWorkspace"));
 class ExplorerBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }

@@ -1,10 +1,11 @@
 {
+  "datasetId": "pgda-site04-ridge-geographic-de421",
   "scope": "Built worker executed in Node with actual WASM; not browser interaction validation",
   "tested": 4500,
   "computed": 2160,
   "feasible": 1019,
   "frontier": 6,
-  "milliseconds": 7600.2964999999995,
+  "milliseconds": 26435.2126,
   "baseline": {
     "positionId": "0:0",
     "arrivalDay": 0,

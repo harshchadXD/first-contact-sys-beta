@@ -1,7 +1,7 @@
+import HorizonOscilloscope from "./components/HorizonOscilloscope";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { syntheticComparisonFixture } from "./data/syntheticComparisonFixture";
-import study from "./data/shackletonStudy.json";
-import resolutionChecks from "../../docs/validation/resolution-checks.json";
+import type { PreparedStudy, RegionId, SavedView } from "./types/study";
 import modelEvaluation from "../../experiments/surrogate/evaluation.json";
 import type { LunarComparisonDataset } from "./types/lunarSite";
 import { initializeEngine } from "./services/engineLoader";
@@ -15,15 +15,9 @@ import Icon from "./components/Icon";
 import { scenarioPresets } from "./data/scenarioPresets";
 import type { WorldView } from "./components/LunarWorld";
 import { skylineAt } from "./services/worldGeometry";
-import type { EnergyParameters } from "./services/energyProfiles";
 import type { RepairRequest } from "./services/repairSearch.worker";
 const LunarWorld = lazy(() => import("./components/LunarWorld"));
 const exportTime = () => new Date().toISOString();
-const reference = study.dataset as LunarComparisonDataset;
-const prepared = study as typeof study & {
-  supportedHeightsMeters?: number[];
-  heightProfiles?: Record<string, Record<string, number[]>>;
-};
 type EngineState =
   | { status: "loading" }
   | { status: "error"; message: string }
@@ -51,22 +45,60 @@ const percent = (v: number | undefined) =>
 const hours = (v: number | undefined) =>
   v === undefined ? "—" : `${v.toFixed(1)} h`;
 
-export default function MissionControl() {
+export default function MissionControl({
+  study,
+  regionId,
+  initialConfiguration,
+  baseline,
+  onKeep,
+  onRestore,
+  onRegionChange,
+}: {
+  study: PreparedStudy;
+  regionId: RegionId;
+  initialConfiguration?: SavedView;
+  baseline: SavedView | null;
+  onKeep: (view: SavedView) => void;
+  onRestore: (view: SavedView) => void;
+  onRegionChange: (id: RegionId, current: SavedView | null) => void;
+}) {
+  const reference = study.dataset as LunarComparisonDataset;
+  const prepared = study;
+  const regionName =
+    regionId === "shackleton" ? "Shackleton ridge" : "Connecting Ridge";
+  const resolutionChecks = {
+    terrainSensitivity:
+      study.sourceManifest.correctedGeographicBake.convergence,
+  };
   const [mode] = useState<"reference" | "synthetic">("reference");
-  const [selected, setSelected] = useState("0:0");
-  const [slip, setSlip] = useState(0);
-  const [duration, setDuration] = useState(7);
-  const [observerHeight, setObserverHeight] = useState(0);
-  const [profileIndex, setProfileIndex] = useState(0);
-  const [energyParameters, setEnergyParameters] = useState(() =>
-    profileParameters(0),
+  const [selected, setSelected] = useState(
+    initialConfiguration?.positionId ?? "0:0",
   );
-  const [reserve, setReserve] = useState(20);
-  const [slopeLimit, setSlopeLimit] = useState(10);
-  const [hour, setHour] = useState(0);
+  const [slip, setSlip] = useState(initialConfiguration?.arrivalDay ?? 0);
+  const [duration, setDuration] = useState(
+    initialConfiguration?.durationDays ?? 7,
+  );
+  const [observerHeight, setObserverHeight] = useState(
+    initialConfiguration?.height ?? 0,
+  );
+  const [profileIndex, setProfileIndex] = useState(
+    initialConfiguration?.profileIndex ?? 0,
+  );
+  const [energyParameters, setEnergyParameters] = useState(
+    () => initialConfiguration?.parameters ?? profileParameters(0),
+  );
+  const [reserve, setReserve] = useState(
+    initialConfiguration?.limits.reserve ?? 20,
+  );
+  const [slopeLimit, setSlopeLimit] = useState(
+    initialConfiguration?.limits.slopeLimit ?? 10,
+  );
+  const [hour, setHour] = useState(initialConfiguration?.hour ?? 0);
   const [playing, setPlaying] = useState(false);
-  const [intro, setIntro] = useState(true);
-  const [view, setView] = useState<WorldView>("overview");
+  const [intro, setIntro] = useState(!initialConfiguration);
+  const [view, setView] = useState<WorldView>(
+    initialConfiguration ? "terrain" : "overview",
+  );
   const [sheet, setSheet] = useState<
     "places" | "dates" | "compare" | "horizon" | "settings" | "evidence" | null
   >(null);
@@ -76,32 +108,12 @@ export default function MissionControl() {
   const [lookAt, setLookAt] = useState<"sun" | "earth">("earth");
   const [focusVersion, setFocusVersion] = useState(0);
   const returnFocus = useRef<HTMLElement | null>(null);
-  const [horizonProbe, setHorizonProbe] = useState<number | null>(null);
-  const [baseline, setBaseline] = useState<{
-    label: string;
-    sun: number;
-    earth: number;
-    dark: number;
-    assumptions: string;
-    durationDays: number;
-    positionId: string;
-    arrivalDay: number;
-    height: number;
-    hour: number;
-    parameters: EnergyParameters;
-    profileIndex: number;
-    limits: {
-      maxDarknessHours: number;
-      minEarthVisibleHours: number;
-      reserve: number;
-      slopeLimit: number;
-    };
-  } | null>(null);
   const [engine, setEngine] = useState<EngineState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [constraints, setConstraints] = useState({
-    maxDarknessHours: 24,
-    minEarthVisibleHours: 4,
+    maxDarknessHours: initialConfiguration?.limits.maxDarknessHours ?? 24,
+    minEarthVisibleHours:
+      initialConfiguration?.limits.minEarthVisibleHours ?? 4,
   });
   const [search, setSearch] = useState<SearchState | null>(null);
   const searchRun = useRef(0);
@@ -126,7 +138,7 @@ export default function MissionControl() {
         },
       })),
     }),
-    [observerHeight],
+    [observerHeight, reference, prepared],
   );
   const window = useMemo(
     () =>
@@ -387,28 +399,11 @@ export default function MissionControl() {
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
-  const chartMin = Math.min(-4, ...e.earthElevationDeg) - 1;
   const groundProfile =
     prepared.heightProfiles?.[selected]?.["0.0"] ??
     position.horizon.horizonElevationDeg;
-  const chartMax =
-    Math.max(8, ...position.horizon.horizonElevationDeg, ...groundProfile) + 2;
-  const cx = (az: number) => 40 + (az / 360) * 870;
-  const cy = (el: number) =>
-    196 - ((el - chartMin) / (chartMax - chartMin)) * 176;
-  const horizonPath =
-    position.horizon.azimuthDeg
-      .map(
-        (az, i) =>
-          `${i ? "L" : "M"}${cx(az)},${cy(position.horizon.horizonElevationDeg[i])}`,
-      )
-      .join(" ") + ` L910,${cy(position.horizon.horizonElevationDeg[0])}`;
   const canSearch =
     engine.status === "ready" && !visibleSearch?.running && !!analysis;
-  const groundHorizonPath =
-    position.horizon.azimuthDeg
-      .map((az, i) => `${i ? "L" : "M"}${cx(az)},${cy(groundProfile[i])}`)
-      .join(" ") + ` L910,${cy(groundProfile[0])}`;
 
   useEffect(() => {
     if (!playing) return;
@@ -462,10 +457,11 @@ export default function MissionControl() {
     setView("terrain");
     setSheet(null);
   }
-  function keepView() {
-    if (!analysis) return;
-    setBaseline({
-      label: `${selected} · ${slip + 1} Dec · ${observerHeight} m`,
+  function captureView(): SavedView | null {
+    if (!analysis) return null;
+    return {
+      regionId,
+      label: `${regionName} ? ${selected} · ${slip + 1} Dec · ${observerHeight} m`,
       sun: analysis.sunVisibleFraction,
       earth: analysis.earthVisibleFraction,
       dark: analysis.longestDarknessHours,
@@ -478,10 +474,18 @@ export default function MissionControl() {
       parameters: { ...energyParameters },
       profileIndex,
       limits: { ...constraints, reserve, slopeLimit },
-    });
+    };
+  }
+  function keepView() {
+    const view = captureView();
+    if (view) onKeep(view);
   }
   function restoreView() {
     if (!baseline) return;
+    if (baseline.regionId !== regionId) {
+      onRestore(baseline);
+      return;
+    }
     setSelected(baseline.positionId);
     setSlip(baseline.arrivalDay);
     setDuration(baseline.durationDays);
@@ -552,7 +556,15 @@ export default function MissionControl() {
           azimuths={position.horizon.azimuthDeg}
           lookAt={lookAt}
           focusVersion={focusVersion}
-          keptPosition={baseline?.positionId}
+          keptPosition={
+            baseline?.regionId === regionId ? baseline.positionId : undefined
+          }
+          pointStatus={Object.fromEntries(
+            (evaluation.result?.positions ?? []).map((result) => [
+              result.positionId,
+              check(result).length === 0,
+            ]),
+          )}
         />
       </Suspense>
       <header className="app-header">
@@ -641,7 +653,7 @@ export default function MissionControl() {
             className="enter-button"
             onClick={() => changeView("terrain")}
           >
-            Explore Shackleton
+            Explore {regionName}
             <Icon name="arrow" />
           </button>
           <button
@@ -677,11 +689,7 @@ export default function MissionControl() {
           {view === "overview" ? (
             <section className="region-callout">
               <span className="small-label">AVAILABLE REGION</span>
-              <h1>
-                Shackleton
-                <br />
-                ridge
-              </h1>
+              <h1>{regionName}</h1>
               <p>A closer look at 25 places near the lunar south pole.</p>
               <button
                 className="text-action"
@@ -691,8 +699,8 @@ export default function MissionControl() {
                 <Icon name="arrow" size={17} />
               </button>
               <small>
-                The highlighted marker locates this study. Other regions are not
-                yet analysed.
+                The highlighted marker locates the active region. Change region
+                in Locations.
               </small>
             </section>
           ) : (
@@ -701,7 +709,7 @@ export default function MissionControl() {
                 className="location-heading"
                 onClick={() => openSheet("places")}
               >
-                Shackleton ridge
+                {regionName}
                 <Icon name="arrow" size={16} />
               </button>
               <div className="coordinate-line">
@@ -823,8 +831,8 @@ export default function MissionControl() {
                 <div>
                   <dt>Local slope / limit</dt>
                   <dd>
-                    {selectedPoint?.slopeDeg?.toFixed(1)}? /{" "}
-                    {slopeLimit.toFixed(1)}?
+                    {selectedPoint?.slopeDeg?.toFixed(1)}° /{" "}
+                    {slopeLimit.toFixed(1)}°
                   </dd>
                 </div>
               </dl>
@@ -881,7 +889,7 @@ export default function MissionControl() {
           {intro
             ? "LRO / NASA SVS · lunar surface explorer"
             : view === "overview"
-              ? "LRO / NASA SVS display mosaic"
+              ? "NASA SVS display mosaic · LRO orbit illustrative"
               : view === "ground"
                 ? "Regional skyline overlay · geometric visibility"
                 : "LOLA elevation · 5 m pixels · local lighting illustrative"}
@@ -1030,30 +1038,51 @@ export default function MissionControl() {
           <div className="sheet-body">
             {sheet === "places" && (
               <>
+                <label className="region-selector">
+                  Study region
+                  <select
+                    value={regionId}
+                    onChange={(event) =>
+                      onRegionChange(
+                        event.target.value as RegionId,
+                        captureView(),
+                      )
+                    }
+                  >
+                    <option value="shackleton">
+                      Shackleton ridge ? Site04
+                    </option>
+                    <option value="connecting-ridge">
+                      Connecting Ridge ? Site01
+                    </option>
+                  </select>
+                </label>
                 <p>
-                  One study region. Twenty-five different outlooks. Select a
-                  point here or on the terrain.
+                  Active region. Twenty-five different outlooks. Select a point
+                  here or on the terrain.
                 </p>
-                <details className="scenario-section">
-                  <summary>Try a computed example</summary>
-                  <p>
-                    Computed examples in this Shackleton study. Each loads a
-                    seven-day window and the default illustrative energy
-                    assumptions.
-                  </p>
-                  <div className="scenario-list">
-                    {scenarioPresets.map((scenario) => (
-                      <button
-                        key={scenario.id}
-                        onClick={() => applyScenario(scenario)}
-                      >
-                        <span>{scenario.name}</span>
-                        <small>{scenario.description}</small>
-                        <Icon name="arrow" size={16} />
-                      </button>
-                    ))}
-                  </div>
-                </details>
+                {regionId === "shackleton" && (
+                  <details className="scenario-section">
+                    <summary>Try a computed example</summary>
+                    <p>
+                      Computed examples in this Shackleton study. Each loads a
+                      seven-day window and the default illustrative energy
+                      assumptions.
+                    </p>
+                    <div className="scenario-list">
+                      {scenarioPresets.map((scenario) => (
+                        <button
+                          key={scenario.id}
+                          onClick={() => applyScenario(scenario)}
+                        >
+                          <span>{scenario.name}</span>
+                          <small>{scenario.description}</small>
+                          <Icon name="arrow" size={16} />
+                        </button>
+                      ))}
+                    </div>
+                  </details>
+                )}
                 <div
                   className="location-grid"
                   role="group"
@@ -1119,7 +1148,9 @@ export default function MissionControl() {
 
                 <p className="panel-note">
                   Each point has a separately baked horizon at every supported
-                  height. Additional regions need their own verified data.
+                  height. Terrain cells show tested limits: green meets, rose
+                  exceeds, grey unavailable. This does not certify unsampled
+                  terrain. Additional regions need their own verified data.
                 </p>
               </>
             )}
@@ -1467,109 +1498,17 @@ export default function MissionControl() {
                     {position.label} · azimuth clockwise from north ·{" "}
                     {data.provenance.observerMastHeightMeters} m observer
                   </p>
-                  <svg
-                    className="horizon-chart"
-                    onPointerMove={(event) => {
-                      const bounds =
-                        event.currentTarget.getBoundingClientRect();
-                      setHorizonProbe(
-                        Math.max(
-                          0,
-                          Math.min(
-                            360,
-                            ((((event.clientX - bounds.left) / bounds.width) *
-                              950 -
-                              40) /
-                              870) *
-                              360,
-                          ),
-                        ),
-                      );
-                    }}
-                    onPointerLeave={() => setHorizonProbe(null)}
-                    viewBox="0 0 950 230"
-                    role="img"
-                    aria-label={`Horizon of ${position.label}; Sun ${sun.el.toFixed(2)} degrees and Earth ${earth.el.toFixed(2)} degrees above the tangent plane.`}
-                  >
-                    {Array.from(
-                      { length: 5 },
-                      (_, i) => chartMin + (i * (chartMax - chartMin)) / 4,
-                    ).map((v) => (
-                      <g key={v}>
-                        <line
-                          x1="40"
-                          x2="910"
-                          y1={cy(v)}
-                          y2={cy(v)}
-                          className="chart-rule"
-                        />
-                        <text x="32" y={cy(v) + 4} textAnchor="end">
-                          {v.toFixed(0)}°
-                        </text>
-                      </g>
-                    ))}
-                    <path
-                      d={`${horizonPath} L910,196 L40,196 Z`}
-                      fill="#1d2a34"
-                    />
-                    <path
-                      d={horizonPath}
-                      fill="none"
-                      stroke="#8a9ba8"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d={groundHorizonPath}
-                      fill="none"
-                      stroke="#a4b9c7"
-                      strokeWidth="1"
-                      strokeDasharray="5 5"
-                    />
-                    <circle
-                      cx={cx(sun.az)}
-                      cy={cy(sun.el)}
-                      r="5"
-                      fill="#facc15"
-                    />
-                    <circle
-                      cx={cx(earth.az)}
-                      cy={cy(earth.el)}
-                      r="5"
-                      fill="#38bdf8"
-                    />
-                    {horizonProbe !== null && (
-                      <line
-                        x1={cx(horizonProbe)}
-                        x2={cx(horizonProbe)}
-                        y1="16"
-                        y2="196"
-                        className="probe-crosshair"
-                      />
-                    )}
-                    {[0, 90, 180, 270, 360].map((v) => (
-                      <text key={v} x={cx(v)} y="222" textAnchor="middle">
-                        {v}°
-                      </text>
-                    ))}
-                  </svg>
-                  <label className="skyline-probe">
-                    Probe azimuth
-                    <input
-                      type="range"
-                      min="0"
-                      max="360"
-                      step="0.5"
-                      value={horizonProbe ?? 0}
-                      onChange={(event) =>
-                        setHorizonProbe(Number(event.target.value))
-                      }
-                    />
-                  </label>
-                  <output className="probe-readout" aria-live="off">
-                    {horizonProbe === null
-                      ? "Move across the chart or use the azimuth control to inspect the skyline."
-                      : `AZ ${horizonProbe.toFixed(1)}° · ACTIVE ${skylineAt(horizonProbe, position.horizon.azimuthDeg, position.horizon.horizonElevationDeg).toFixed(2)}°`}
-                  </output>
+                  <HorizonOscilloscope
+                    azimuths={position.horizon.azimuthDeg}
+                    active={position.horizon.horizonElevationDeg}
+                    ground={groundProfile}
+                    sun={sun}
+                    earth={earth}
+                    sunAz={e.sunAzimuthDeg}
+                    sunEl={e.sunElevationDeg}
+                    earthAz={e.earthAzimuthDeg}
+                    earthEl={e.earthElevationDeg}
+                  />
                   {!analysis && selected !== "0:0" && mode === "reference" && (
                     <p className="chart-warning">
                       This is the reference centre skyline. The selected offset
@@ -2078,18 +2017,18 @@ export default function MissionControl() {
                         °. Horizon convergence beyond 30 km is not established.
                       </p>
                       <p>
-                        A seven-day, 5 m centre case gave identical geometric
-                        interval metrics at hourly and 15-minute sampling. This
-                        single case is not a general error bound. Pixel spacing
-                        is not effective terrain resolution; unsampled terrain
-                        between points remains unchecked.
+                        A seven-day, 5 m Shackleton centre case gave identical
+                        geometric interval metrics at hourly and 15-minute
+                        sampling. This single case is not a general error bound.
+                        Pixel spacing is not effective terrain resolution;
+                        unsampled terrain between points remains unchecked.
                       </p>
                     </details>
                     <details>
                       <summary>Actual ML training & evaluation</summary>
                       <p>
                         {modelEvaluation.totalLabelledCases.toLocaleString()}{" "}
-                        Rust-labelled scenarios;{" "}
+                        Shackleton Rust-labelled scenarios;{" "}
                         {modelEvaluation.trainingCases.toLocaleString()}{" "}
                         training cases. CPU neural network with separate spatial
                         and temporal holdouts. Later-date holdout produced{" "}

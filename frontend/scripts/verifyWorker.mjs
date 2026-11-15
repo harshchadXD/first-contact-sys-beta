@@ -8,7 +8,7 @@ const file = fs
   .find((p) => p.startsWith("repairSearch.worker-"));
 assert.ok(file, "Build the frontend before verifying the emitted worker");
 const study = JSON.parse(
-  fs.readFileSync(new URL("../src/data/shackletonStudy.json", import.meta.url)),
+  fs.readFileSync(process.argv[2] ?? new URL("../src/data/shackletonStudy.json", import.meta.url)),
 );
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (input, options) => {
@@ -77,9 +77,10 @@ fs.mkdirSync(new URL("../../docs/validation/", import.meta.url), {
   recursive: true,
 });
 fs.writeFileSync(
-  new URL("../../docs/validation/search-check.json", import.meta.url),
+  process.argv[3] ?? new URL("../../docs/validation/search-check.json", import.meta.url),
   JSON.stringify(
     {
+      datasetId: study.dataset.datasetId,
       scope:
         "Built worker executed in Node with actual WASM; not browser interaction validation",
       tested: result.tested,
