@@ -1,5 +1,12 @@
-logo.png
-BLUEPRINT.md
-deep_research.md
-team_work.md
-AGENTS.md
+node_modules/
+build/
+dist/
+coverage/
+target/
+*.tif
+*.tmp
+data/dem/
+.DS_Store
+*.log
+.env*
+!.env.example

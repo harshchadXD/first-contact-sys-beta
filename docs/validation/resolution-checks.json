@@ -1,0 +1,34 @@
+{
+  "case": "Site04 exploratory ridge centre, 1–8 Dec 2026, 5m observer",
+  "coarseSampleMinutes": 60,
+  "fineSampleMinutes": 15,
+  "coarse": {
+    "sunVisibleFraction": 1,
+    "earthVisibleFraction": 0.09523809523809523,
+    "longestDarknessHours": 0,
+    "longestEarthBlackoutHours": 152,
+    "longestEarthVisibleHours": 16
+  },
+  "fine": {
+    "sunVisibleFraction": 1,
+    "earthVisibleFraction": 0.09523809523809523,
+    "longestDarknessHours": 0,
+    "longestEarthBlackoutHours": 152,
+    "longestEarthVisibleHours": 16
+  },
+  "absoluteDifference": {
+    "sunVisibleFraction": 0,
+    "earthVisibleFraction": 0,
+    "longestDarknessHours": 0,
+    "longestEarthBlackoutHours": 0,
+    "longestEarthVisibleHours": 0
+  },
+  "terrainSensitivity": {
+    "halfDegreeMidpointMaxDifferenceDeg": 0.10001507892086225,
+    "finerRadialSamplingMaxDifferenceDeg": 0.12546083012358888,
+    "twentyVsThirtyKmMaxDifferenceDeg": 3.1575129335790293,
+    "meaning": "Angular interpolation sensitivity, not end-to-end error or confidence interval; hourly timing, raster sampling and finite ray range remain limitations."
+  },
+  "maximumHeightDirectionApproximationDeg": 0.0000016070988932680437,
+  "limitations": "Centre-only sensitivity checks, not an independent observational validation or a total error bound. Larger-than-30km horizon convergence is not established."
+}

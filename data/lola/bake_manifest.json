@@ -1,0 +1,210 @@
+{
+  "schema": "firstcontact-lola-de421-bake-v2",
+  "baked_at_utc": "2026-11-15T16:09:18.083659+00:00",
+  "terrain_sources": {
+    "south_pole_20m": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_20MPP_ADJ.TIF",
+    "site04_5m": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site04/Site04_final_adj_5mpp_surf.tif",
+    "chandrayaan3_60m": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_60S_60MPP_ADJ.TIF",
+    "psr_20m": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.TIF"
+  },
+  "ephemeris": {
+    "source": "JPL DE421 SPK + NAIF MOON_ME orientation",
+    "start_utc": "2026-12-01T00:00:00+00:00",
+    "end_utc": "2027-03-02T00:00:00+00:00",
+    "step_hours": 1,
+    "kernel_files": [
+      {
+        "name": "naif0012.tls",
+        "bytes": 5257,
+        "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+      },
+      {
+        "name": "de421.bsp",
+        "bytes": 16790528,
+        "sha256": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3"
+      },
+      {
+        "name": "moon_pa_de421_1900-2050.bpc",
+        "bytes": 1770496,
+        "sha256": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf"
+      },
+      {
+        "name": "moon_080317.tf",
+        "bytes": 21437,
+        "sha256": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993"
+      },
+      {
+        "name": "pck00010.tpc",
+        "bytes": 126143,
+        "sha256": "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"
+      }
+    ]
+  },
+  "sites": [
+    {
+      "site_id": "PGDA-01",
+      "lat_deg": -89.4632,
+      "lon_deg": -137.49,
+      "elevation_m": 1945.287,
+      "pixel_size_m": 20.0,
+      "slope_deg": 5.454,
+      "rms_height_uncertainty_m": 0.172,
+      "nearest_psr_km": 0.404,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-20",
+      "lat_deg": -84.7906,
+      "lon_deg": 29.1957,
+      "elevation_m": 5322.048,
+      "pixel_size_m": 20.0,
+      "slope_deg": 3.078,
+      "rms_height_uncertainty_m": 0.287,
+      "nearest_psr_km": 0.495,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-04",
+      "lat_deg": -89.7667415,
+      "lon_deg": -171.8928091,
+      "elevation_m": 767.979,
+      "pixel_size_m": 5.0,
+      "slope_deg": 32.736,
+      "rms_height_uncertainty_m": 0.113,
+      "nearest_psr_km": 0.788,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "ISRO-CY3",
+      "lat_deg": -69.3676,
+      "lon_deg": 32.3481,
+      "elevation_m": 531.871,
+      "pixel_size_m": 60.0,
+      "slope_deg": 1.257,
+      "rms_height_uncertainty_m": 0.856,
+      "nearest_psr_km": null,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-02",
+      "lat_deg": -87.1245,
+      "lon_deg": 67.0412,
+      "elevation_m": 505.514,
+      "pixel_size_m": 20.0,
+      "slope_deg": 7.821,
+      "rms_height_uncertainty_m": 0.19,
+      "nearest_psr_km": 0.814,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-06",
+      "lat_deg": -85.4381,
+      "lon_deg": 37.3667,
+      "elevation_m": 5944.476,
+      "pixel_size_m": 20.0,
+      "slope_deg": 14.972,
+      "rms_height_uncertainty_m": 0.191,
+      "nearest_psr_km": 0.828,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-07",
+      "lat_deg": -88.811,
+      "lon_deg": 123.6901,
+      "elevation_m": 1646.483,
+      "pixel_size_m": 20.0,
+      "slope_deg": 3.691,
+      "rms_height_uncertainty_m": 0.184,
+      "nearest_psr_km": 0.09,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-08",
+      "lat_deg": -87.4215,
+      "lon_deg": -5.1324,
+      "elevation_m": -3342.226,
+      "pixel_size_m": 20.0,
+      "slope_deg": 2.32,
+      "rms_height_uncertainty_m": 0.188,
+      "nearest_psr_km": 0.006,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-11",
+      "lat_deg": -88.6834,
+      "lon_deg": -67.9321,
+      "elevation_m": 1793.797,
+      "pixel_size_m": 20.0,
+      "slope_deg": 1.422,
+      "rms_height_uncertainty_m": 0.33,
+      "nearest_psr_km": 0.15,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-12",
+      "lat_deg": -88.3418,
+      "lon_deg": -75.1235,
+      "elevation_m": -190.177,
+      "pixel_size_m": 20.0,
+      "slope_deg": 16.54,
+      "rms_height_uncertainty_m": 0.252,
+      "nearest_psr_km": 2.008,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-14",
+      "lat_deg": -84.5218,
+      "lon_deg": 82.8142,
+      "elevation_m": -3644.526,
+      "pixel_size_m": 20.0,
+      "slope_deg": 1.726,
+      "rms_height_uncertainty_m": 0.388,
+      "nearest_psr_km": 0.41,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-16",
+      "lat_deg": -85.1241,
+      "lon_deg": 43.1518,
+      "elevation_m": 2287.058,
+      "pixel_size_m": 20.0,
+      "slope_deg": 20.524,
+      "rms_height_uncertainty_m": 0.189,
+      "nearest_psr_km": 0.807,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-18",
+      "lat_deg": -85.7812,
+      "lon_deg": 31.4219,
+      "elevation_m": 2873.32,
+      "pixel_size_m": 20.0,
+      "slope_deg": 18.541,
+      "rms_height_uncertainty_m": 0.203,
+      "nearest_psr_km": 0.465,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "PGDA-23",
+      "lat_deg": -85.9948,
+      "lon_deg": -0.2358,
+      "elevation_m": 4784.662,
+      "pixel_size_m": 20.0,
+      "slope_deg": 4.547,
+      "rms_height_uncertainty_m": 0.18,
+      "nearest_psr_km": 0.071,
+      "terrain_fidelity": "lola_published"
+    },
+    {
+      "site_id": "MOCK-01",
+      "lat_deg": -84.79,
+      "lon_deg": 29.2,
+      "elevation_m": 0.0,
+      "pixel_size_m": null,
+      "slope_deg": 0.0,
+      "rms_height_uncertainty_m": null,
+      "nearest_psr_km": null,
+      "terrain_fidelity": "synthetic"
+    }
+  ]
+}
