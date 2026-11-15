@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { computeEarthLibrationTrack } from '../science/ephemeris';
 import type {
   LunarSiteDefinition,
@@ -74,7 +74,7 @@ export const HorizonPanorama2D: React.FC<HorizonPanorama2DProps> = ({
     // 2. Elevation & Azimuth Gridlines (drawn early as background reference)
     ctx.strokeStyle = '#E2E8F0';
     ctx.lineWidth = 1;
-    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.font = '10px Mono, monospace';
     ctx.fillStyle = '#64748B';
 
     for (let el = -2; el <= 12; el += 2) {
@@ -215,7 +215,7 @@ export const HorizonPanorama2D: React.FC<HorizonPanorama2DProps> = ({
       ctx.setLineDash([]);
 
       ctx.fillStyle = '#0369A1';
-      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.font = '10px Mono, monospace';
       ctx.fillText(
         '+0.57° Earth Atmospheric Refraction Band (Absent in Lunar Vacuum)',
         padL + 8,

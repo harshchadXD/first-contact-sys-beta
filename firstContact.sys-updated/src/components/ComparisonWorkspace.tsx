@@ -126,7 +126,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
 
         {/* Comparison Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse text-xs rankings-table">
             <thead>
               <tr className="border-b border-[#DCE5F2] text-[#475569] font-mono">
                 <th className="py-2.5 pr-3 font-semibold">Site ID</th>
@@ -150,7 +150,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                       isActive ? 'bg-[#EBF3FF]' : 'hover:bg-[#F8FAFC]'
                     }`}
                   >
-                    <td className="py-2.5 pr-3 text-[#0284C7] font-semibold">
+                    <td className="rank-site py-2.5 pr-3 text-[#0284C7] font-semibold">
                       <button
                         type="button"
                         onClick={() => onSelectSite(r.siteId)}
@@ -159,7 +159,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                         {r.siteId}
                       </button>
                     </td>
-                    <td className="py-2.5 px-3 font-sans text-[#0F172A] font-medium">
+                    <td className="rank-name py-2.5 px-3 font-sans text-[#0F172A] font-medium">
                       <button
                         type="button"
                         onClick={() => onSelectSite(r.siteId)}
@@ -168,22 +168,22 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                         {r.name}
                       </button>
                     </td>
-                    <td className="py-2.5 px-3 text-right font-semibold text-[#B45309]">
+                    <td data-label="Sun" className="rank-sun py-2.5 px-3 text-right font-semibold text-[#B45309]">
                       {r.pSunPct.toFixed(1)}%
                     </td>
-                    <td className="py-2.5 px-3 text-right font-semibold text-[#0284C7]">
+                    <td data-label="DTE" className="rank-dte py-2.5 px-3 text-right font-semibold text-[#0284C7]">
                       {r.pEarthPct.toFixed(1)}%
                     </td>
-                    <td className="py-2.5 px-3 text-right text-[#334155]">
+                    <td data-label="Slope" className="rank-slope py-2.5 px-3 text-right text-[#334155]">
                       {r.slopeDeg.toFixed(1)}°
                     </td>
-                    <td className="py-2.5 px-3 text-right text-[#64748B]">
+                    <td data-label="PSR ice" className="rank-ice py-2.5 px-3 text-right text-[#64748B]">
                       {r.iceProximityKm.toFixed(1)} km
                     </td>
-                    <td className="py-2.5 px-3 text-right text-[#334155]">
+                    <td data-label="Max dark" className="rank-dark py-2.5 px-3 text-right text-[#334155]">
                       {r.longestDarknessHrs}h
                     </td>
-                    <td className="py-2.5 px-3 text-right font-semibold text-[#0F172A]">
+                    <td data-label="Score" className="rank-score py-2.5 px-3 text-right font-semibold text-[#0F172A]">
                       <div className="inline-flex items-center justify-end gap-2">
                         <span className="w-12 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:inline-block">
                           <span
@@ -194,7 +194,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                         <span>{r.compositeScore.toFixed(1)}</span>
                       </div>
                     </td>
-                    <td className="py-2.5 pl-3 text-right">
+                    <td className="rank-status py-2.5 pl-3 text-right">
                       {r.paretoOptimal ? (
                         <span className="text-[#059669] font-semibold">★ PARETO</span>
                       ) : r.viable ? (

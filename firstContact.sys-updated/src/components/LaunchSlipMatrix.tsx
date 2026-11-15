@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import type {
   LaunchSlipDay,
   SolverConstraints,
@@ -189,7 +189,7 @@ export const LaunchSlipMatrix: React.FC<LaunchSlipMatrixProps> = ({
                     y={y + 3}
                     fill="#64748B"
                     fontSize="9.5"
-                    fontFamily="JetBrains Mono, monospace"
+                    fontFamily="Mono, monospace"
                   >
                     {pct}%
                   </text>
@@ -198,7 +198,7 @@ export const LaunchSlipMatrix: React.FC<LaunchSlipMatrixProps> = ({
                     y={y + 3}
                     fill="#64748B"
                     fontSize="9.5"
-                    fontFamily="JetBrains Mono, monospace"
+                    fontFamily="Mono, monospace"
                   >
                     {Math.round(20 + (pct / 100) * 380)}K
                   </text>

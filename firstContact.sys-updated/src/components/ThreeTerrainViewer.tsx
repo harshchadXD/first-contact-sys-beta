@@ -1516,7 +1516,7 @@ export function ThreeTerrainViewer({
       <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-[#1E293B] bg-[#0A0D16]">
         <div className="flex items-center gap-3">
           {/* Mode Switcher Pills */}
-          <div className="flex items-center p-0.5 rounded-lg bg-[#0F172A] border border-[#1E293B]">
+          <div className="terrain-view-switch flex items-center p-0.5 rounded-lg bg-[#0F172A] border border-[#1E293B]">
             <button
               type="button"
               onClick={() => handleToggleMode('tactical')}
@@ -1527,7 +1527,7 @@ export function ThreeTerrainViewer({
               }`}
             >
               <MapPin className="w-3.5 h-3.5" />
-              <span>500m TACTICAL ZONE</span>
+              <span>Landing zone</span>
             </button>
             <button
               type="button"
@@ -1539,7 +1539,7 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Video className="w-3.5 h-3.5" />
-              <span>MAST-CAM POV</span>
+              <span>Mast view</span>
             </button>
             <button
               type="button"
@@ -1551,7 +1551,7 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>3D GLOBAL MOON</span>
+              <span>Moon globe</span>
             </button>
           </div>
 
@@ -1567,7 +1567,7 @@ export function ThreeTerrainViewer({
             title="Toggle 875m coordinate discrepancy between MOON_PA and MOON_ME"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-            <span className="hidden sm:inline">875m GIS Drift</span>
+            <span className="sr-only">Toggle 875m coordinate drift</span>
           </button>
 
           {/* 30 NASA Topographic Features Toggle (Globe Mode) */}
@@ -1591,17 +1591,9 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">30 NASA Sites</span>
+              <span>30 sites</span>
             </button>
           )}
-
-          <div className="hidden sm:block text-[11px] font-mono text-slate-400">
-            {viewMode === 'globe'
-              ? 'Click Moon or pins to inspect NASA SVS features'
-              : viewMode === 'mast-cam'
-                ? `Lander Mast-Cam POV · ${mastHeightM.toFixed(1)}m Mast`
-                : `${site.metadata.name} · LOLA-Calibrated 5m/px DEM`}
-          </div>
         </div>
 
         {/* Action Controls */}
@@ -1620,7 +1612,7 @@ export function ThreeTerrainViewer({
             className="h-8 px-2.5 flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-[#0F172A] border border-[#1E293B] hover:border-cyan-500 rounded-lg transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset View</span>
+            <span className="hidden sm:inline">Reset</span>
           </button>
 
           {/* Fullscreen Toggle Button */}
@@ -1632,12 +1624,12 @@ export function ThreeTerrainViewer({
             {isFullscreen ? (
               <>
                 <Minimize2 className="w-3.5 h-3.5" />
-                <span>EXIT FULLSCREEN</span>
+                <span>Exit</span>
               </>
             ) : (
               <>
                 <Maximize2 className="w-3.5 h-3.5" />
-                <span>FULLSCREEN</span>
+                <span>Fullscreen</span>
               </>
             )}
           </button>
