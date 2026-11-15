@@ -72,8 +72,8 @@ export const SPACECRAFT_PROFILES: SpacecraftProfile[] = [
 ];
 
 /**
- * Validates spacecraft hardware specifications per NASA IV&V flight rules.
- * Throws RangeError if parameters violate physical thermodynamic or structural bounds.
+ * Validates internal model-profile values for basic numeric sanity. This does
+ * not verify vendor specifications or NASA flight rules.
  */
 export function validateSpacecraftProfile(profile: SpacecraftProfile): SpacecraftProfile {
   if (!profile || typeof profile !== 'object') {
@@ -267,7 +267,6 @@ function buildBakedSite(record: BakedSiteRecord): LunarSiteDefinition {
         ? 'Synthetic plane — no LOLA terrain'
         : 'NASA GSFC PGDA LOLA published product'),
     missionContext: CONTEXT_OVERRIDES[meta.site_id] ?? meta.mission_context ?? 'Lunar south-polar site.',
-    iceProximityKm: nearestPsrKm ?? 999,
     terrainFidelity,
     pixelSizeM: meta.pixel_size_m ?? provenance?.pixel_size_m ?? null,
     nearestPsrKm,

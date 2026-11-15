@@ -409,7 +409,8 @@ export default function App() {
               <p>
                 Published PGDA LOLA products at 5–60 m/pixel supply each site&apos;s local
                 crop, 360° skyline and dispersion surface. Ephemerides are baked from JPL
-                DE421. Fourteen real sites plus one synthetic calibration case.
+                DE421 for the 2026-12-01 to 2027-03-02 envelope. Fourteen real sites are
+                compared; MOCK-01 is a synthetic calibration case, excluded from ranking.
               </p>
             </article>
             <article data-reveal>
@@ -424,9 +425,9 @@ export default function App() {
               <span className="micro-label">Limits</span>
               <h3>Exploration, not certification</h3>
               <p>
-                This is a research explorer. Earth-disc visibility is geometric, not an RF
-                link guarantee. Hardware profiles are illustrative assumptions. Display
-                lighting is illustrative.
+                The default PGDA-01 scenario starts 2026-12-17 with a 3.0 m observer mast.
+                This is a research explorer: Earth-disc visibility is geometric, not an RF
+                link guarantee, and hardware profiles are illustrative assumptions.
               </p>
             </article>
           </div>

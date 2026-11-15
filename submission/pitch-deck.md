@@ -16,93 +16,93 @@ style: |
 
 <!-- _class: lead -->
 
-# FIRST CONTACT.SYS
+# FIRST CONTACT.sys
 ## Lunar Landing Site Navigator
 
 **See the local horizon. Check the power window. Move the landing point.**
 
-NASA Space Apps Challenge · CLPS: Lunar Landing Site Navigator
+NASA Space Apps Challenge 2026 · CLPS: Lunar Landing Site Navigator
 
 ---
 
 ## 01 — A landing site is more than a pin
 
-IM-2 Athena landed near Mons Mouton on March 6, 2025. NASA reports that the lander came to rest on its side, limiting science operations.
+IM-2 Athena landed near Mons Mouton on March 6, 2025. NASA reported that the lander
+came to rest on its side, limiting science operations. At the lunar south pole,
+nearby terrain can also interrupt sunlight and geometric view of Earth.
 
-Polar terrain adds a second planning problem: the Sun and Earth skim low horizons, so nearby ridges can interrupt power and geometric communications visibility.
+> First Contact makes those local geometry and energy trade-offs inspectable before a landing point is chosen.
 
-> Our tool makes those local geometry and energy trade-offs inspectable before a landing point is chosen.
-
-*Source: NASA mission summary and IM-2 surface report.*
+*Context only: the app does not model IM-2's actual touchdown terrain or reconstruct its telemetry.*
 
 ---
 
 ## 02 — The south-pole geometry problem
 
-- The Sun follows a shallow arc, making terrain elevation decisive for illumination.
-- Earth visibility changes with lunar orientation and local skyline.
-- A 500 m landing footprint can contain materially different slopes and height uncertainty.
+- The Sun follows a shallow arc, so small terrain ridges can change illumination.
+- Earth visibility changes with lunar orientation and the local skyline.
+- A 500 m analysis patch shows terrain variation near the candidate center.
 - Terrain line of sight does **not** equal a complete RF link budget.
 
 **One reference point. One hourly sky. Twenty-five nearby terrain cells.**
 
 ---
 
-## 03 — Measured terrain, 14 real sites
+## 03 — Fourteen real sites, one calibration case
 
-**Regional terrain:** NASA GSFC PGDA LOLA adjusted south-polar DEMs at 20 m/pixel for 12 sites, 5 m/pixel at Shackleton Rim, and 60 m/pixel for Chandrayaan-3.
+**Terrain:** 12 PGDA regional candidates use published LOLA products at 20 m/pixel; PGDA-04 uses the Site04 product at 5 m/pixel with a 20 m/pixel regional DEM beyond its local footprint; ISRO-CY3 uses the 60 m/pixel 60°S DEM.
 
-**Local layers:** each site carries a 360° horizon mask, a 101 × 101 analysis grid, published slope and height-error products, and a 5 × 5 dispersion grid.
+**Local analysis:** each site has a 360-bin horizon and 101 × 101 grid sampled at 5 m spacing. The grid is resampled from source terrain; it does not increase native resolution. Published slope and height-error values are carried where available; missing values remain missing.
 
-**Sky:** direct JPL DE421 SPICE baseline in the lunar MOON_ME frame, with kernel hashes recorded beside the output.
+**A deliberate hard case:** the selected PGDA-04 center lies on a steep Shackleton rim (about 32.7° nominal slope). It is not a benign plateau and is not the IM-2 landing site.
 
-**Calibration:** MOCK-01 is a synthetic plane used to prove the pipeline. It is labelled, pinned last, and excluded from the Pareto ranking.
-
----
-
-## 04 — From pixels to a landing view
-
-1. Read only the selected DEM windows.
-2. March 360 azimuth rays with lunar-curvature correction.
-3. Carry slope and LOLA RMS height uncertainty into a 5 × 5 dispersion grid.
-4. Evaluate every offset over the configured mission duration.
-5. Render the terrain patch and terrain-aware grazing-light shadows.
-
-Every rendered site carries a provenance label; the one synthetic fallback is marked as synthetic and kept out of the ranking.
+**Calibration:** MOCK-01 is a synthetic flat plane. It remains visible for pipeline checks, has no composite suitability score, and is excluded from recommendations and the Pareto frontier.
 
 ---
 
-## 05 — Put the mission assumptions on the screen
+## 04 — Trace the data into a landing view
 
-- Scrub 2,185 hourly Sun/Earth samples from 2026-12-01 to 2027-03-02.
-- Open at PGDA-01 with a +16-day arrival (2026-12-17) and a 3.0 m mast.
-- Compare mast height, hotel load, and CLPS power-profile assumptions.
-- Inspect darkness, communications gaps, battery state, and 30 launch-slip windows.
-- Edit planetary GMs and propagate a separate scenario from the DE421 starting state.
+1. Read bounded windows from the published DEM products.
+2. Cast 360 azimuth rays with lunar-curvature correction, to 30 km where data coverage allows.
+3. Carry source slope and height uncertainty into a 5 × 5 offset grid; preserve unavailable values as `n/a`.
+4. Evaluate offsets over the configured mission duration against the local horizon and sampled sky.
+5. Render terrain with illustrative lighting; the rendered surface is not the science input.
 
-**DE421 stays the baseline.** GM edits use a reduced Newtonian point-mass sensitivity model.
+Regional DEM fill is used for PGDA-04 horizon rays beyond the local Site04 raster. Every site carries source provenance; MOCK-01 is marked synthetic.
 
 ---
 
-## 06 — Planner and Educator views
+## 05 — Put mission assumptions on screen
 
-**Planner:** terrain risk, power margin, and launch timing in one console.
+- Inspect 2,185 hourly geometric Sun/Earth samples from 2026-12-01 to 2027-03-02.
+- The default scenario opens at PGDA-01 with a +16-day arrival (2026-12-17) and a 3.0 m observer mast.
+- Compare mast height, hotel load, spacecraft profile, and arrival timing.
+- Inspect darkness, geometric Earth visibility, battery state, and the 30-day launch-slip scan.
+- Outside the baked DE421 envelope, the analytic fallback is labelled as a non-DE421 approximation.
+
+**DE421 remains the baseline.** Editable GM runs use a separate reduced Newtonian sensitivity model, not a modified DE421 product.
+
+---
+
+## 06 — Explore the trade, inspect the limits
+
+**Planner:** terrain, energy, and arrival windows in one workspace.
 
 **Educator:** a simplified atmosphere comparison band and a visible Sun/Earth sky path.
 
-**Failure replay:** select a high-slope offset to explore an off-nominal case. This replay is an illustration; it is not presented as an IM-2 telemetry reconstruction or a causal finding.
+**Failure replay:** select a high-slope offset to explore an off-nominal model case. This is an illustration, not an IM-2 telemetry reconstruction or causal finding.
 
 ---
 
 ## 07 — What the result can support
 
-- Terrain and topocentric geometry are traceable to public NASA/JPL sources.
-- Fourteen real sites use published LOLA products at 5–60 m/pixel; MOCK-01 is synthetic and excluded from rankings.
-- Battery and lander hardware numbers remain provisional until replaced with mission datasheets.
-- LOLA resolution resolves horizon-scale terrain, not sub-metre boulders; terminal hazard avoidance still needs onboard lidar.
-- The GM sensitivity model does not reproduce DE421's PPN terms, asteroid perturbations, solar J2, or modified lunar orbit/orientation.
-- Geometric Earth visibility is not a DSN schedule or RF link budget.
+- Fourteen real records use published LOLA terrain; MOCK-01 is synthetic and excluded from site recommendations.
+- PSR distance is proximity to a mapped region, not a confirmed ice measurement. ISRO-CY3 is outside the PSR product coverage.
+- Geometric Earth visibility is not an RF link budget, antenna-pattern model, or DSN schedule.
+- Hourly sampling can miss short visibility transitions; LOLA-scale terrain does not resolve sub-metre hazards.
+- Spacecraft power and thermal profiles are exploratory assumptions, not verified vendor specifications.
+- The GM sensitivity model omits DE421's PPN terms, asteroid perturbations, solar J2, and modified lunar orbit/orientation.
 
-**A planning aid with explicit assumptions—not a flight certification.**
+**A planning explorer with visible assumptions—not a flight certification.**
 
-<footer>Data sources and method: `REFERENCES.md` · `docs/methodology.md`</footer>
+<footer>Sources and method: `REFERENCES.md` · `docs/methodology.md` · `docs/DATA_AND_METHODS.md`</footer>

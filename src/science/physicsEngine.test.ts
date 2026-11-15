@@ -75,14 +75,14 @@ test('Published LOLA dispersion separates a sun-rich peak from a shadowed loss c
   );
 });
 
-test('LRO Diviner cryogenic temperature spans shadow cold traps to illuminated peaks', () => {
+test('modeled surface radiative temperature stays within broad configured bounds', () => {
   const coldK = computeSurfaceTempK(-1.2, 0.0);
   const hotK = computeSurfaceTempK(3.2, 1.0);
   assert.ok(coldK >= 27 && coldK <= 60, `Expected cryogenic cold trap, got ${coldK}K`);
   assert.ok(hotK >= 220 && hotK <= 395, `Expected warm sunlit peak, got ${hotK}K`);
 });
 
-test('Pareto solver ranks all 15 lunar sites and identifies non-dominated frontier', () => {
+test('Pareto solver ranks 14 real sites and keeps calibration out of the frontier', () => {
   const griffin = getSpacecraftById('griffin');
   const constraints = {
     maxDarknessHrs: 24,
@@ -99,6 +99,11 @@ test('Pareto solver ranks all 15 lunar sites and identifies non-dominated fronti
 
   const realSites = rankings.filter((r) => !r.isCalibration);
   assert.equal(realSites.length, 14, 'Exactly 14 real LOLA sites must be ranked');
+  assert.equal(
+    rankings.find((r) => r.siteId === 'ISRO-CY3')?.nearestPsrKm,
+    null,
+    'PSR distance remains unknown where the published product has no coverage'
+  );
   assert.equal(rankings[rankings.length - 1].siteId, 'MOCK-01', 'Calibration plane must sort last');
   assert.equal(rankings[rankings.length - 1].paretoOptimal, false, 'Calibration plane is never on the frontier');
   assert.ok(
@@ -133,7 +138,7 @@ test('Pareto solver ranks all 15 lunar sites and identifies non-dominated fronti
   );
 });
 
-test('All 15 South Polar landing sites adhere to NASA LOLA and DEM geometry constraints', () => {
+test('All 15 site records have valid polar coordinates and declared terrain provenance', () => {
   assert.equal(LUNAR_SITES.length, 15);
   for (const site of LUNAR_SITES) {
     assert.ok(site.metadata.latDeg <= -68.0, `Site ${site.metadata.siteId} must be in South Polar zone`);
@@ -141,6 +146,10 @@ test('All 15 South Polar landing sites adhere to NASA LOLA and DEM geometry cons
     assert.equal(site.dCritM.length, 360, `Site ${site.metadata.siteId} must have 360 dCrit points`);
     assert.equal(site.demGrid101.length, 101 * 101, `Site ${site.metadata.siteId} must have 101x101 DEM`);
     assert.ok(site.metadata.elevationM !== undefined);
+    assert.equal(
+      site.metadata.terrainFidelity,
+      site.metadata.siteId === 'MOCK-01' ? 'synthetic' : 'lola_published'
+    );
   }
 });
 

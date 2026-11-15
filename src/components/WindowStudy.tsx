@@ -517,12 +517,12 @@ const SITE_COPY: Record<string, { title: string; label: string; note: string }> 
     title: 'de Gerlache Rim 1 · high-persistence crest',
     label: 'DE GERLACHE RIM',
     note:
-      'A low, open horizon keeps both Sun and Earth in view through this arrival window. Raise the mast and the last shadow disappears.',
+      'A low, open horizon keeps both Sun and Earth in geometric view through this arrival window. The plotted tracks use hourly baked samples.',
   },
   'PGDA-04': {
     title: 'Shackleton Crater Rim · terrain-limited case',
     label: 'SHACKLETON RIM',
     note:
-      'Near the pole, small changes in position and height can put a ridge between the observer and the sky. Compare it with the other sites.',
+      'This 5 m LOLA study center sits on the selected rim at about 32.7° nominal slope. Treat it as a steep, terrain-limited case, not a benign plateau.',
   },
 };

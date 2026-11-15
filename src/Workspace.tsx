@@ -122,7 +122,7 @@ export default function Workspace({ onExit, initialSection = 'terrain' }: {
     computeTimeMs?: number;
   }>({ status: 'IDLE' });
 
-  // Direct Rust WASM Kernel (Zero-Copy DE421 Ephemeris) integration
+  // Rust/WASM scenario calculation; source-series provenance is shown separately.
   useEffect(() => {
     let cancelled = false;
     const t0 = performance.now();

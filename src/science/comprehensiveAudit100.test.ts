@@ -1,5 +1,5 @@
 /**
- * FIRST CONTACT.SYS - NASA IV&V Comprehensive Audit Test Suite
+ * FIRST CONTACT.sys - project science and integration audit suite
  * 100+ distinct unit, stress, and property-based tests
  * 
  * Categories:
@@ -834,8 +834,8 @@ describe('Category 3: Battery SoC, Thermal Heating Loads, and Sub-Hour Depletion
     expect(targetCoreTemp).toBe(118.0);
   });
 
-  // Test 63: Surface temperature: shadow = 27K cryogenic floor (LRO Diviner)
-  it('3.13 Thermal: shadow temperature near cryogenic floor', () => {
+  // Test 63: Exploratory modeled surface temperature remains finite in shadow.
+  it('3.13 Thermal: night-side assumption is finite and consistent', () => {
     const temp = computeSurfaceTempK(-2.0, 0.0);
     // Formula: 32.0 + internalHeatFluxW * 2.5 = 32.0 + 1.5 * 2.5 = 35.75 ≈ 35.8
     expect(temp).toBeCloseTo(35.8, 1);
@@ -959,11 +959,10 @@ describe('Category 3: Battery SoC, Thermal Heating Loads, and Sub-Hour Depletion
     expect(result.summary.minSurfaceTempK).toBeLessThan(300); // Cold environment
   });
 
-  // Test 75: Thermal model uses LRO Diviner empirical peak ~385K
-  it('3.25 Thermal: max temperature bounded by Diviner data', () => {
+  // Test 75: The exploratory radiative model remains within its configured bounds.
+  it('3.25 Thermal: modeled temperature remains bounded', () => {
     // At polar latitudes, max solar elevation is ~1.54°
-    // LRO Diviner measures ~385K at subsolar point (equator, noon)
-    // At pole with 1.54° elevation, temperature is much lower
+    // A low polar Sun elevation yields a modeled value, not a site measurement.
     const temp = computeSurfaceTempK(1.54, 1.0); // Max solar elevation at pole
     expect(temp).toBeLessThanOrEqual(392.0);
     expect(temp).toBeGreaterThan(200); // Realistic polar temperature
@@ -1189,8 +1188,8 @@ describe('Category 4: LOLA DEM Sampling, Slopes, Horizon Masking, Mast Clearance
     }
   });
 
-  // Test 96: Pareto solver evaluates all 15 sites
-  it('4.21 Pareto: ranks all 15 lunar sites', () => {
+  // Test 96: 14 real sites are ranked; MOCK-01 remains as a calibration record.
+  it('4.21 Pareto: includes 14 ranked sites and the calibration record', () => {
     const rankings = computeParetoSiteRankings(spacecraft, constraints, weights);
     expect(rankings.length).toBe(15);
     // Check all site IDs present
@@ -1213,14 +1212,15 @@ describe('Category 4: LOLA DEM Sampling, Slopes, Horizon Masking, Mast Clearance
       if (a.paretoOptimal) {
         for (const b of realRankings) {
           if (a.siteId === b.siteId) continue;
-          const bBetterOrEq = b.pSunPct >= a.pSunPct && 
-                              b.pEarthPct >= a.pEarthPct && 
-                              b.slopeDeg <= a.slopeDeg && 
-                              b.iceProximityKm <= a.iceProximityKm;
+          const psrComparable = a.nearestPsrKm !== null && b.nearestPsrKm !== null;
+          const bBetterOrEq = b.pSunPct >= a.pSunPct &&
+                              b.pEarthPct >= a.pEarthPct &&
+                              b.slopeDeg <= a.slopeDeg &&
+                              (!psrComparable || b.nearestPsrKm! <= a.nearestPsrKm!);
           const bStrictlyBetter = b.pSunPct > a.pSunPct || 
                                   b.pEarthPct > a.pEarthPct || 
                                   b.slopeDeg < a.slopeDeg || 
-                                  b.iceProximityKm < a.iceProximityKm;
+                                  (psrComparable && b.nearestPsrKm! < a.nearestPsrKm!);
           expect(!(bBetterOrEq && bStrictlyBetter)).toBe(true);
         }
       }
@@ -1247,6 +1247,8 @@ describe('Category 4: LOLA DEM Sampling, Slopes, Horizon Masking, Mast Clearance
     expect(isro).toBe(1);  // ISRO-CY3
     expect(mock).toBe(1);  // MOCK-01
     expect(LUNAR_SITES.length).toBe(15);
+    expect(getSiteById('ISRO-CY3').metadata.nearestPsrKm).toBeNull();
+    expect(getSiteById('MOCK-01').metadata.terrainFidelity).toBe('synthetic');
   });
 
   // Test 100: Horizon H0 and dCrit arrays generated from seed (deterministic)
@@ -1276,7 +1278,7 @@ describe('Category 4: LOLA DEM Sampling, Slopes, Horizon Masking, Mast Clearance
   });
 
   // Test 102: Published LOLA terrain, not a procedural crater preset
-  it('4.27 DEM: published LOLA relief and 360-sample horizon', () => {
+  it('4.27 DEM: real LOLA relief and 360-sample horizon; mock remains synthetic', () => {
     const real = getSiteById('PGDA-20');
     expect(real.provenance?.terrainFidelity).toBe('lola_published');
     expect(real.horizonH0Deg.length).toBe(360);

@@ -144,15 +144,15 @@ export const LaunchSlipMatrix: React.FC<LaunchSlipMatrixProps> = ({
         </div>
       </div>
 
-      {/* Part 2: Dual-Axis Battery SoC & LRO Diviner Cryogenic Surface Temperature */}
+      {/* Part 2: Battery state of charge and modeled surface temperature */}
       <div className="pt-4 border-t border-[#E8EEF6]">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <h3 className="text-xs font-semibold text-[#0F172A]">
-            Battery State-of-Charge (%) & LRO Diviner Surface Temperature (K)
+            Battery State-of-Charge (%) & Modeled Surface Temperature (K)
           </h3>
           <div className="flex items-center gap-3 text-[11px] font-mono tabular-nums font-semibold">
             <span className="text-[#0284C7]">— Battery SoC</span>
-            <span className="text-[#D97706]">— Surface Temp (27K–390K)</span>
+            <span className="text-[#D97706]">— Surface Temp (27K–392K)</span>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export const LaunchSlipMatrix: React.FC<LaunchSlipMatrixProps> = ({
             onClick={handleSvgClick}
             className="w-full h-36 cursor-pointer"
             role="img"
-            aria-label="Battery State of Charge and LRO Diviner Surface Temperature over mission timeline"
+            aria-label="Battery state of charge and modeled surface radiative temperature over the mission timeline"
           >
             <defs>
               <linearGradient id="socAreaGrad" x1="0" y1="0" x2="0" y2="1">

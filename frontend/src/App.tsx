@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import HeaderAdamBridge from "./components/HeaderAdamBridge";
 import HardwareProfileSelector from "./components/HardwareProfileSelector";
@@ -143,53 +142,6 @@ export default function App() {
       <footer className="console-footer"><div><b>FIRST CONTACT.SYS</b><span>OPEN SCIENCE / DE421 BASELINE · GM SENSITIVITY MODE</span></div><div><span>{loading ? "INITIALIZING" : "DATA READY"}</span><i /> {result?.timeline.length.toLocaleString() ?? "0"} HOURLY SAMPLES</div><a href="/data/ephemeris/site04_gm_scenario.json" target="_blank" rel="noreferrer">PROVENANCE & MODEL INPUT ↗</a></footer>
     </main>
   </div>;
-=======
-import { Component, lazy, Suspense } from "react";
-import type { ReactNode } from "react";
-const Explorer = lazy(() => import("./RegionWorkspace"));
-class ExplorerBoundary extends Component<
-  { children: ReactNode },
-  { failed: boolean }
-> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? (
-      <main className="startup">
-        <h1>The explorer couldn’t load.</h1>
-        <p>
-          Your calculation runs locally. Reload to retry the application files.
-        </p>
-        <button className="solid-button" onClick={() => location.reload()}>
-          Reload explorer
-        </button>
-      </main>
-    ) : (
-      this.props.children
-    );
-  }
-}
-export default function App() {
-  return (
-    <ExplorerBoundary>
-      <Suspense
-        fallback={
-          <main className="startup">
-            <div className="startup-mark" aria-hidden="true" />
-            <h1>
-              FIRST CONTACT<span>.sys</span>
-            </h1>
-            <p role="status">Preparing your view of the Moon…</p>
-          </main>
-        }
-      >
-        <Explorer />
-      </Suspense>
-    </ExplorerBoundary>
-  );
->>>>>>> a804f1cf32df6f271aa4a3cc0ef26efa7f0d33b8
 }
 
 function Metric({ label, value, detail, tone }: { label: string; value: string; detail: string; tone: string }) { return <div className={`metric-card metric-${tone}`}><span>{label}</span><strong>{value}</strong><small>{detail}</small><i /></div>; }

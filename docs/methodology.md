@@ -27,11 +27,19 @@ Ridge), the default arrival is 2026-12-17 (+16 days), and the default mast is 3.
 `synthetic` in the UI, pinned last in the comparison table, and excluded from the Pareto
 frontier and mission-site recommendations.
 
+The Pareto solver treats missing PSR coverage as unknown. It compares PSR distance only
+between two sites that both have a mapped distance; ISRO-CY3 is not assigned an invented
+distance penalty.
+
 ## Provenance and input
 
 The baker accepts a LOLA-derived surface-elevation GeoTIFF in a projected lunar CRS whose axes are east/north in metres and pixels are square. NASA GSFC PGDA Product 78 identifies its 5 m/pixel south-polar site DEMs as MOON_ME (DE421) products and supplies companion slope and total-height-uncertainty rasters for many sites. The operator supplies the chosen center pixel, its site name and coordinates, and optional matching slope/uncertainty rasters. The program verifies matching raster dimensions, CRS and pixel transforms before using companion maps. The default 5 m record is Product 78 Site04, catalogued as Shackleton Rim. The other real sites use PGDA's adjusted 20 m/pixel 80°S regional DEM, or the 60 m/pixel 60°S DEM for Chandrayaan-3; Product 90's 20 m/pixel 80S regional LOLA DEM can fill terrain rays outside a local high-resolution footprint. See [the Product 90 page](https://pgda.gsfc.nasa.gov/products/90).
 
 Do not infer the site identity from a `SiteXX` label alone. PGDA's current catalogue identifies Site20/Site20v2 as the Leibnitz Beta Plateau; Mons Mouton/IM-2 naming in project planning material needs independent verification against the actual DEM footprint before being used as site metadata.
+
+The shipped PGDA-04 crop uses the Product 78 Site04 center on the Shackleton rim; its
+reported center slope is about 32.7°. This is the selected raster location and must not
+be described as the broader crater region's average slope or as the IM-2 touchdown site.
 
 ## Crop and heightmap
 

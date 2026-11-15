@@ -188,8 +188,9 @@ export function computeSunPenumbraFraction(
 }
 
 /**
- * LRO Diviner bolometric surface radiative temperature (27K to 392K)
- * with regolith radiative equilibrium and internal geothermal heat flux.
+ * Exploratory surface radiative-temperature estimate with regolith assumptions
+ * and internal heat flux, bounded to a broad 27–392 K range. This is not a
+ * Diviner measurement at the selected point or a spacecraft temperature.
  */
 export function computeSurfaceTempK(
   sunElDeg: number,
@@ -198,11 +199,11 @@ export function computeSurfaceTempK(
 ): number {
   if (isNaN(sunElDeg) || isNaN(sunFraction)) return 90.0;
   if (sunFraction <= 0.01 || sunElDeg <= 0) {
-    // Deep cold trap cryogenic baseline ~27K - 52K depending on thermal inertia / internal heat flux
+    // Project night-side estimate: 35.8 K at the default internal heat input.
     return Number((32.0 + internalHeatFluxW * 2.5).toFixed(1));
   }
   const effectiveIncidence = Math.sin((clip(sunElDeg, 0.4, 90) * Math.PI) / 180);
-  // Polar terrain grazing factor scaled against LRO Diviner empirical peak (~385K)
+  // Exploratory polar-incidence shaping; this is not a fitted Diviner product.
   const absorbedFlux =
     (1 - LUNAR_ALBEDO) * SOLAR_CONSTANT_W_M2 * clip(sunFraction, 0, 1) * Math.pow(effectiveIncidence, 0.35);
   const tSurf = Math.pow(
@@ -305,16 +306,16 @@ export function simulateMissionWindow(
       incidenceFactor = Math.max(0.0, Math.sin(elRad) * Math.cos(tiltRad) + Math.cos(elRad) * Math.sin(tiltRad) * Math.cos(relAzRad));
     }
 
-    // Diviner cryogenic surface temperature + spacecraft thermal inertia
+    // Exploratory surface radiative-temperature estimate; not lander telemetry.
     const surfaceTempK = computeSurfaceTempK(vec.sunElDeg, sunFraction);
     if (surfaceTempK < minSurfaceTempK) minSurfaceTempK = surfaceTempK;
     if (surfaceTempK > maxSurfaceTempK) maxSurfaceTempK = surfaceTempK;
 
-    // Cryogenic survival heater model per vehicle ICD:
-    // When surface drops below 90K in shadows or cold traps, survival heaters activate to prevent propellant freeze
+    // Project assumption: modeled survival-heater load is applied when the
+    // estimated surface temperature is below 90 K and battery charge remains.
     const pHeater = (surfaceTempK < 90.0 && batteryWh > 0) ? (spacecraft.survivalHeaterW ?? 35.0) : 0;
 
-    // Battery State-of-Charge integration (1 hour step) with LRO Diviner thermal coupling
+    // One-hour battery state-of-charge step using the simplified temperature assumption.
     const pSolar = spacecraft.solarRatedW * sunFraction * incidenceFactor;
     const pTx = earthVisible ? spacecraft.txLoadW : 0;
     const netPowerW = pSolar - spacecraft.hotelLoadW - pTx - pHeater;
@@ -622,7 +623,6 @@ export function computeParetoSiteRankings(
       pSunPct: sim.summary.pSunPct,
       pEarthPct: sim.summary.pEarthPct,
       slopeDeg: site.metadata.nominalSlopeDeg,
-      iceProximityKm: site.metadata.iceProximityKm,
       nearestPsrKm: site.metadata.nearestPsrKm ?? null,
       terrainFidelity: site.metadata.terrainFidelity,
       longestDarknessHrs: sim.summary.longestDarknessHrs,
@@ -634,7 +634,8 @@ export function computeParetoSiteRankings(
   });
 
   // Determine non-dominated Pareto frontier on (maximize pSun, maximize pEarth,
-  // minimize slope, minimize nearest-PSR distance). Survival is a hard
+  // minimize slope, minimize nearest-PSR distance when both sites have data).
+  // Missing PSR coverage is unknown, not a distance penalty. Survival is a hard
   // constraint: a viable site always dominates a mission-loss site, so the
   // frontier never recommends a site the lander cannot survive. The synthetic
   // calibration plane is never ranked against real terrain.
@@ -649,16 +650,17 @@ export function computeParetoSiteRankings(
         if (b.viable) dominated = true;
         continue;
       }
+      const psrComparable = a.nearestPsrKm !== null && b.nearestPsrKm !== null;
       const bBetterOrEq =
         b.pSunPct >= a.pSunPct &&
         b.pEarthPct >= a.pEarthPct &&
         b.slopeDeg <= a.slopeDeg &&
-        b.iceProximityKm <= a.iceProximityKm;
+        (!psrComparable || b.nearestPsrKm! <= a.nearestPsrKm!);
       const bStrictlyBetter =
         b.pSunPct > a.pSunPct ||
         b.pEarthPct > a.pEarthPct ||
         b.slopeDeg < a.slopeDeg ||
-        b.iceProximityKm < a.iceProximityKm;
+        (psrComparable && b.nearestPsrKm! < a.nearestPsrKm!);
       if (bBetterOrEq && bStrictlyBetter) {
         dominated = true;
         break;

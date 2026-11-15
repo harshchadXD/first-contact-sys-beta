@@ -1,6 +1,0 @@
-{
-  "name": "FIRST CONTACT.SYS",
-  "description": "CLPS Lunar South Pole Landing Site Navigator & Survival Analysis Platform grounded in NASA PGDA LOLA topography and JPL DE421 ephemeris.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

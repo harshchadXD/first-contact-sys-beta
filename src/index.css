@@ -1713,7 +1713,7 @@ img {
   letter-spacing: -0.05em;
 }
 
-.evidence-lead > p {
+.evidence-lead > p:not(.eyebrow) {
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: end;
@@ -2110,13 +2110,13 @@ img {
   }
 
   .evidence-lead h2,
-  .evidence-lead > p,
+  .evidence-lead > p:not(.eyebrow),
   .evidence-lead .enter-button {
     grid-column: 1;
     grid-row: auto;
   }
 
-  .evidence-lead > p {
+  .evidence-lead > p:not(.eyebrow) {
     margin-top: 8px;
   }
 
@@ -3525,10 +3525,6 @@ img {
 
 .rank-row-calibration td {
   color: #64748b;
-}
-
-.rank-row-calibration .rank-score span span {
-  background: #94a3b8;
 }
 
 .rank-row-calibration .rank-name {

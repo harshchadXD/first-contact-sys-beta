@@ -77,10 +77,9 @@ export interface SiteMetadata {
   rmsSlopeErrorDeg: number | null;
   demSource: string;
   missionContext: string;
-  /** Nearest published PSR, not a confirmed ice deposit. */
-  iceProximityKm: number;
   terrainFidelity?: TerrainFidelity;
   pixelSizeM?: number | null;
+  /** Nearest mapped PSR distance; null means the source product has no coverage. */
   nearestPsrKm?: number | null;
   psrFraction1kmPct?: number | null;
   psrFraction5kmPct?: number | null;
@@ -208,7 +207,6 @@ export interface ParetoSiteRanking {
   pSunPct: number;
   pEarthPct: number;
   slopeDeg: number;
-  iceProximityKm: number;
   nearestPsrKm: number | null;
   terrainFidelity?: TerrainFidelity;
   longestDarknessHrs: number;

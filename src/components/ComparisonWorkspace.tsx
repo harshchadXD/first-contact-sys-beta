@@ -30,18 +30,19 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
       {/* Pareto "Goldilocks" Solver Table */}
       <section
         id="pareto-ranking"
-        aria-label="Autonomous Goldilocks Pareto Multi-Site Comparison"
+        aria-label="Pareto multi-site comparison"
         className="bg-white border border-[#DCE5F2] rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-5"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-sm font-semibold text-[#0F172A]">
-              Autonomous &ldquo;Goldilocks&rdquo; Pareto Multi-Site Solver
+              Pareto multi-site comparison
             </h2>
             <p className="text-[11px] text-[#64748B]">
-              Ranks {rankings.filter((r) => !r.isCalibration).length} real sites on published LOLA terrain
-              and baked JPL DE421 sky. MOCK-01 is a synthetic calibration plane: shown last, never ranked,
-              never on the frontier. PSR distance is proximity evidence, not a confirmed ice measurement.
+              {rankings.filter((r) => !r.isCalibration).length} real sites ranked on published LOLA terrain
+              and baked JPL DE421 sky + 1 synthetic calibration case. MOCK-01 is shown last and excluded
+              from ranking, the frontier, and recommendations. PSR distance is proximity evidence, not a
+              confirmed ice measurement.
             </p>
           </div>
           <button
@@ -50,7 +51,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
             className="h-9 px-3.5 flex items-center gap-2 bg-[#EBF3FF] border border-[#93C5FD] hover:bg-[#DBEAFE] text-xs font-semibold text-[#1D4ED8] rounded-lg transition-colors whitespace-nowrap shrink-0"
           >
             <Download className="w-3.5 h-3.5 text-[#2563EB]" />
-            <span>Export CSV Telemetry</span>
+            <span>Export CSV</span>
           </button>
         </div>
 
@@ -82,7 +83,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
           <div>
             <div className="flex justify-between text-xs mb-1">
               <label htmlFor="weight-earth" className="text-[#334155] font-medium">
-                Earth DTE Comms Weight
+                Geometric Earth View Weight
               </label>
               <span className="font-mono tabular-nums font-semibold text-[#0284C7]">
                 {Math.round(weights.earth * 100)}%
@@ -190,15 +191,24 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                       {r.longestDarknessHrs}h
                     </td>
                     <td data-label="Score" className="rank-score py-2.5 px-3 text-right font-semibold text-[#0F172A]">
-                      <div className="inline-flex items-center justify-end gap-2">
-                        <span className="w-12 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:inline-block">
-                          <span
-                            className="block h-full bg-[#2563EB] rounded-full"
-                            style={{ width: `${Math.max(4, Math.min(100, r.compositeScore))}%` }}
-                          />
+                      {r.isCalibration ? (
+                        <span
+                          className="text-[#64748B] font-sans text-[10px] font-semibold tracking-wide"
+                          title="A composite mission suitability score is not assigned to synthetic calibration data."
+                        >
+                          CAL ONLY
                         </span>
-                        <span>{r.compositeScore.toFixed(1)}</span>
-                      </div>
+                      ) : (
+                        <div className="inline-flex items-center justify-end gap-2">
+                          <span className="w-12 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:inline-block">
+                            <span
+                              className="block h-full bg-[#2563EB] rounded-full"
+                              style={{ width: `${Math.max(4, Math.min(100, r.compositeScore))}%` }}
+                            />
+                          </span>
+                          <span>{r.compositeScore.toFixed(1)}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="rank-status py-2.5 pl-3 text-right">
                       {r.isCalibration ? (
@@ -227,8 +237,8 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
           <span className="mt-[4px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#94A3B8]" aria-hidden="true" />
           <span>
             <strong className="font-semibold text-[#475569]">MOCK-01 is calibration-only.</strong>{' '}
-            Its terrain is a procedural plane, so its score is excluded from the Pareto solver and
-            from every mission-site recommendation. It stays in the dataset to prove the full
+            Its terrain is a procedural plane, so no composite suitability score is assigned and
+            it is excluded from the Pareto solver and every mission-site recommendation. It stays in the dataset to prove the full
             analysis pipeline runs end to end on a known synthetic input.
           </span>
         </p>
