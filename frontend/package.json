@@ -9,17 +9,23 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test:data": "node --experimental-strip-types src/data/runDataValidation.ts",
-    "test": "npm run test:data",
-    "preview": "vite preview"
+    "test:engine": "node --experimental-strip-types --test src/services/*.test.ts",
+    "test": "npm run test:data && npm run test:engine && npm run test:wasm && npm run test:scenarios",
+    "preview": "vite preview",
+    "test:wasm": "node --experimental-strip-types scripts/verifyWasm.mjs",
+    "test:worker": "node --experimental-strip-types scripts/verifyWorker.mjs",
+    "test:scenarios": "node --experimental-strip-types scripts/verifyScenarios.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.180.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
     "typescript": "~7.0.2",

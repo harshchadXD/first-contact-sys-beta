@@ -62,14 +62,13 @@ assertStrictEqual(angleReport.valid, false);
 assert(angleReport.errors.some((err) => err.includes('outside valid range')));
 console.log('  ✓ Out-of-bounds azimuth properly rejected.');
 
-// 6. Test rejection if a position lacks its own distinct horizon
-console.log('\nTest 6: Testing rejection of positions with identical horizons...');
+// Distinct positions can legitimately have identical sampled horizons.
+console.log('\nTest 6: Testing acceptance of identical sampled horizons...');
 const identicalHorizons: LunarComparisonDataset = structuredClone(syntheticComparisonFixture);
 identicalHorizons.positions[1].horizon = structuredClone(identicalHorizons.positions[0].horizon);
 const horizonReport = validateDataset(identicalHorizons);
-assertStrictEqual(horizonReport.valid, false);
-assert(horizonReport.errors.some((err) => err.includes('must have different terrain horizons')));
-console.log('  ✓ Identical horizons properly rejected.');
+assertStrictEqual(horizonReport.valid, true);
+console.log('  ✓ Identical sampled horizons accepted.');
 
 // 7. Test rejection of non-synthetic provenance fidelity label
 console.log('\nTest 7: Testing rejection of non-synthetic provenance fidelity label...');
@@ -78,7 +77,7 @@ const invalidProvenance: LunarComparisonDataset = structuredClone(syntheticCompa
 invalidProvenance.provenance.dataFidelity = 'REAL_OBSERVED';
 const provReport = validateDataset(invalidProvenance);
 assertStrictEqual(provReport.valid, false);
-assert(provReport.errors.some((err) => err.includes('Expected provenance.dataFidelity to be "SYNTHETIC"')));
+assert(provReport.errors.some((err) => err.includes('provenance.dataFidelity')));
 console.log('  ✓ Invalid fidelity label properly rejected.');
 
 console.log('\n=== All 7 Data Foundation Validation Tests Passed Successfully ===');

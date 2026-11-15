@@ -2,4 +2,33 @@ logo.png
 BLUEPRINT.md
 deep_research.md
 team_work.md
+.tools/
+engine/target/
+
+# Local source snapshot and deployment/tooling state (preserved on disk)
+shaurya_work/
+.deploy/
+.local-archive/
+**/__pycache__/
+*.pyc
+*.tif
+*.tiff
+*.bsp
+*.bpc
+.env
+.env.*
+!.env.example
+
+# Internal collaboration and planning; retained locally, excluded from submission
 AGENTS.md
+DESIGN.md
+PROJECT_CONTEXT.md
+PROPOSED_PLAN.md
+docs/archive/
+docs/CURRENT_REVIEW_AND_NEXT_TASKS.md
+docs/V1_WORK_SPLIT.md
+docs/DEPLOYMENT.md
+docs/ui-inspiration/
+.vercel/
+.vercel
+.env*

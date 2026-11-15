@@ -8,9 +8,9 @@ export interface ValidationReport {
 
 /**
  * Validates a LunarComparisonDataset instance:
- * 1. Provenance integrity (fidelity=SYNTHETIC, conventions, finite mast height)
+ * 1. Provenance integrity (explicit fidelity, source references, finite mast height)
  * 2. Ephemeris synchronized array lengths, finite numbers, strictly increasing timestamps, valid angles
- * 3. Multiple supported positions (at least 2), each with distinct local horizon profiles
+ * 3. At least one position with a valid local horizon profile
  * 4. Horizon array matching lengths, valid azimuth [0, 360), elevation [-90, 90]
  */
 export function validateDataset(dataset: unknown): ValidationReport {
@@ -27,8 +27,13 @@ export function validateDataset(dataset: unknown): ValidationReport {
   if (!ds.provenance) {
     errors.push('Missing provenance section');
   } else {
-    if (ds.provenance.dataFidelity !== 'SYNTHETIC') {
-      errors.push(`Expected provenance.dataFidelity to be "SYNTHETIC", got "${ds.provenance.dataFidelity}"`);
+    if (!['SYNTHETIC', 'NASA_DERIVED'].includes(ds.provenance.dataFidelity)) {
+      errors.push(`Unsupported provenance.dataFidelity: "${ds.provenance.dataFidelity}"`);
+    }
+    if (ds.provenance.dataFidelity === 'NASA_DERIVED' &&
+        (!Array.isArray(ds.provenance.sourceUrls) || ds.provenance.sourceUrls.length === 0 ||
+          !ds.provenance.sourceUrls.every(url => typeof url === 'string' && /^https:\/\//.test(url)))) {
+      errors.push('NASA-derived datasets require sourceUrls containing HTTPS source references');
     }
     if (ds.provenance.coordinateConvention !== 'MOON_ME') {
       errors.push(`Expected coordinateConvention "MOON_ME", got "${ds.provenance.coordinateConvention}"`);
@@ -42,9 +47,9 @@ export function validateDataset(dataset: unknown): ValidationReport {
     if (
       typeof ds.provenance.observerMastHeightMeters !== 'number' ||
       !Number.isFinite(ds.provenance.observerMastHeightMeters) ||
-      ds.provenance.observerMastHeightMeters <= 0
+      ds.provenance.observerMastHeightMeters < 0
     ) {
-      errors.push('provenance.observerMastHeightMeters must be a positive finite number');
+      errors.push('provenance.observerMastHeightMeters must be a nonnegative finite number');
     }
     if (!ds.provenance.generatedAtUtc || isNaN(Date.parse(ds.provenance.generatedAtUtc))) {
       errors.push('provenance.generatedAtUtc must be a valid ISO 8601 UTC timestamp string');
@@ -120,8 +125,8 @@ export function validateDataset(dataset: unknown): ValidationReport {
   }
 
   // 3. Positions validation
-  if (!Array.isArray(ds.positions) || ds.positions.length < 2) {
-    errors.push('positions must be an array containing at least 2 distinct evaluation positions');
+  if (!Array.isArray(ds.positions) || ds.positions.length < 1) {
+    errors.push('positions must contain at least one evaluation position');
   } else {
     const positionIds = new Set<string>();
 
@@ -191,17 +196,6 @@ export function validateDataset(dataset: unknown): ValidationReport {
       }
     }
 
-    // Verify that the positions do not have identical horizons (must have different horizons)
-    if (ds.positions.length >= 2 && ds.positions[0]?.horizon && ds.positions[1]?.horizon) {
-      const h0 = ds.positions[0].horizon.horizonElevationDeg;
-      const h1 = ds.positions[1].horizon.horizonElevationDeg;
-      if (h0 && h1 && h0.length === h1.length) {
-        const identical = h0.every((val, idx) => val === h1[idx]);
-        if (identical) {
-          errors.push('positions[0] and positions[1] must have different terrain horizons');
-        }
-      }
-    }
   }
 
   return {

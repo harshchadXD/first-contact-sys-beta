@@ -1,0 +1,25 @@
+[package]
+name = "first-contact-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Deterministic lunar horizon occlusion and interval visibility engine for First Contact.sys"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-bindgen = { version = "0.2", optional = true }
+
+[features]
+default = []
+wasm = ["wasm-bindgen"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

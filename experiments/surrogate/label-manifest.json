@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "sourceStudySha256": "c37a44b5bd43bd5d0e05a5f319ed2775bdfa0b25e56b681147739e1165ea2abc",
+  "wasmSha256": "6bb8dce41129d3898fc5abd8777f3d168258375a5952b14340d04d29fab67ffd",
+  "features": [
+    "east/200",
+    "north/200",
+    "height/10",
+    "duration/336",
+    "arrival/29",
+    "horizonMean/40",
+    "horizonStd/20",
+    "horizonMin/40",
+    "horizonMax/40",
+    "horizonCos1/20",
+    "horizonSin1/20",
+    "horizonCos2/20",
+    "horizonSin2/20",
+    "sunSinAz",
+    "sunCosAz",
+    "sunEl/10",
+    "earthSinAz",
+    "earthCosAz",
+    "earthEl/10"
+  ],
+  "targets": [
+    "sunVisibleFraction",
+    "earthVisibleFraction",
+    "longestDarkness/window",
+    "longestEarthVisible/window"
+  ],
+  "cases": 9000,
+  "exactEngineMilliseconds": 7115.555200000028,
+  "totalGenerationMilliseconds": 7298.2173,
+  "scope": "One Site04 region; physics-generated sampled geometric labels, not mission success labels. Full future ephemeris is not passed as model features."
+}

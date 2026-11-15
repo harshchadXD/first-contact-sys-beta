@@ -8,7 +8,8 @@
  */
 
 export interface DatasetProvenance {
-  dataFidelity: 'SYNTHETIC';
+  dataFidelity: 'SYNTHETIC' | 'NASA_DERIVED';
+  sourceUrls?: string[];
   generator: string;
   generatedAtUtc: string;
   coordinateConvention: 'MOON_ME';
@@ -43,8 +44,10 @@ export interface LunarPosition {
   label: string;
   description: string;
   coordinates: PositionCoordinates;
-  /** Local terrain horizon measured from this exact position */
+  /** Terrain horizon computed or supplied for this exact position */
   horizon: HorizonProfile;
+  /** Position-dependent topocentric vectors, when available. */
+  ephemeris?: EphemerisTimeSeries;
 }
 
 export interface EphemerisTimeSeries {
