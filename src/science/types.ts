@@ -41,6 +41,15 @@ export interface SiteMetadata {
   isCalibration?: boolean;
 }
 
+export interface SiteEphemerisSeries {
+  startUtc: string;
+  stepHours: number;
+  sunAzDeg: number[];
+  sunElDeg: number[];
+  earthAzDeg: number[];
+  earthElDeg: number[];
+}
+
 export interface LunarSiteDefinition {
   metadata: SiteMetadata;
   /** 360 elements (0..359 deg) baseline terrain horizon elevation angle at z_mast = 0m */
@@ -49,6 +58,8 @@ export interface LunarSiteDefinition {
   dCritM: number[];
   /** 101x101 elevation grid in meters relative to nominal elevationM (row-major y=-250..+250, x=-250..+250) */
   demGrid101: number[];
+  /** JPL DE421 hourly ephemeris table when available from baked dataset */
+  ephemeris?: SiteEphemerisSeries;
   /** Seeded terrain characteristics for local dispersion craters */
   craterPreset?: {
     dxM: number;

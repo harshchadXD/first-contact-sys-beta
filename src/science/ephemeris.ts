@@ -17,6 +17,66 @@ export interface TopocentricVectors {
   earthElDeg: number;
 }
 
+export interface EphemerisCompatibleSite {
+  metadata?: {
+    latDeg?: number;
+    lonDeg?: number;
+  };
+  site_metadata?: {
+    lat_deg?: number;
+    lon_deg?: number;
+  };
+  ephemeris?: {
+    sunAzDeg?: number[];
+    sunElDeg?: number[];
+    earthAzDeg?: number[];
+    earthElDeg?: number[];
+    sun_az_deg?: number[];
+    sun_el_deg?: number[];
+    earth_az_deg?: number[];
+    earth_el_deg?: number[];
+  };
+}
+
+/**
+ * Resolves high-fidelity topocentric Sun and Earth vectors.
+ * If the site contains pre-computed JPL DE421 ephemeris tables covering the requested epoch,
+ * this function returns the high-precision DE421 vectors directly.
+ * Otherwise, it evaluates topocentric vectors using the selenographic spherical trigonometry ephemeris.
+ */
+export function getTopocentricEphemerisVector(
+  site: EphemerisCompatibleSite,
+  hoursSinceEpoch: number
+): TopocentricVectors {
+  const h = Math.round(hoursSinceEpoch);
+  const eph = site.ephemeris;
+  if (eph) {
+    const sunAz = eph.sunAzDeg ?? eph.sun_az_deg;
+    const sunEl = eph.sunElDeg ?? eph.sun_el_deg;
+    const earthAz = eph.earthAzDeg ?? eph.earth_az_deg;
+    const earthEl = eph.earthElDeg ?? eph.earth_el_deg;
+    if (
+      sunAz &&
+      sunEl &&
+      earthAz &&
+      earthEl &&
+      h >= 0 &&
+      h < sunAz.length
+    ) {
+      return {
+        sunAzDeg: Number((((sunAz[h] % 360) + 360) % 360).toFixed(2)),
+        sunElDeg: Number(sunEl[h].toFixed(3)),
+        earthAzDeg: Number((((earthAz[h] % 360) + 360) % 360).toFixed(2)),
+        earthElDeg: Number(earthEl[h].toFixed(3)),
+      };
+    }
+  }
+
+  const latDeg = site.metadata?.latDeg ?? site.site_metadata?.lat_deg ?? -89.9;
+  const lonDeg = site.metadata?.lonDeg ?? site.site_metadata?.lon_deg ?? 0.0;
+  return computeTopocentricEphemeris(latDeg, lonDeg, hoursSinceEpoch);
+}
+
 /**
  * Normalize degrees into [0, 360)
  */

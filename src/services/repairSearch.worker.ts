@@ -2,7 +2,7 @@
 
 import type { LunarSite } from "../types";
 import type { LunarSiteDefinition } from "../science/types";
-import { computeTopocentricEphemeris } from "../science/ephemeris";
+import { computeTopocentricEphemeris, getTopocentricEphemerisVector } from "../science/ephemeris";
 import { computeLocalSlopeDeg } from "../science/physicsEngine";
 import { loadEngine, computeHorizonDeg } from "./wasmEngineBridge";
 
@@ -155,7 +155,7 @@ async function search(request: RepairSearchRequest): Promise<RepairSearchResult>
 
       for (let h = 0; h < durationHours; h++) {
         const absHour = startHour + h;
-        const vec = computeTopocentricEphemeris(latDeg, lonDeg, absHour);
+        const vec = getTopocentricEphemerisVector(request.site as any, absHour);
         timestampsUtc.push(new Date(Date.UTC(2026, 11, 1, h)).toISOString());
         sunAzimuthDeg.push(Number((((vec.sunAzDeg % 360) + 360) % 360).toFixed(3)));
         sunElevationDeg.push(Number(vec.sunElDeg.toFixed(3)));

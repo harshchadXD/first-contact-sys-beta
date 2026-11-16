@@ -579,17 +579,18 @@ function buildHorizonArrays(seed: RawSiteSeed): {
   horizonH0Deg: number[];
   dCritM: number[];
 } {
-  // Use exact NASA GSFC LOLA Product 78 in-situ raycast horizon mask for Shackleton Rim (Site04)
-  if (seed.siteId === 'PGDA-04') {
-    const bakedS4 = (bakedSitesData as any).sites?.find(
-      (s: any) => s.site_metadata?.site_id === 'PGDA-Site04-Shackleton'
-    );
-    if (bakedS4?.horizon_mask_360?.h0_deg && bakedS4?.horizon_mask_360?.d_crit_m) {
-      return {
-        horizonH0Deg: bakedS4.horizon_mask_360.h0_deg,
-        dCritM: bakedS4.horizon_mask_360.d_crit_m,
-      };
-    }
+  // Use exact NASA GSFC LOLA Product 78 in-situ raycast horizon mask from baked dataset
+  const baked = (bakedSitesData as any).sites?.find(
+    (s: any) => s.site_metadata?.site_id === seed.siteId
+  );
+  if (
+    baked?.horizon_mask_360?.h0_deg?.length === 360 &&
+    baked?.horizon_mask_360?.d_crit_m?.length === 360
+  ) {
+    return {
+      horizonH0Deg: baked.horizon_mask_360.h0_deg,
+      dCritM: baked.horizon_mask_360.d_crit_m,
+    };
   }
 
   const horizonH0Deg: number[] = [];
@@ -599,7 +600,7 @@ function buildHorizonArrays(seed: RawSiteSeed): {
     const rad = (az * Math.PI) / 180;
     const phase = (seed.horizonPhaseDeg * Math.PI) / 180;
 
-    // Multi-harmonic natural lunar ridge profile
+    // Multi-harmonic natural lunar ridge profile fallback
     const harmonic =
       Math.sin(rad * 2 + phase) * 0.55 +
       Math.cos(rad * 3 - phase * 0.7) * 0.3 +
@@ -630,6 +631,14 @@ function buildHorizonArrays(seed: RawSiteSeed): {
 }
 
 function buildDemGrid101(seed: RawSiteSeed): number[] {
+  // Use real NASA GSFC LOLA 101x101 (5m/px) relative elevation DEM grid from baked dataset
+  const baked = (bakedSitesData as any).sites?.find(
+    (s: any) => s.site_metadata?.site_id === seed.siteId
+  );
+  if (baked?.dem_grid_101?.relative_elevations_m?.length === 101 * 101) {
+    return baked.dem_grid_101.relative_elevations_m;
+  }
+
   const grid = new Array<number>(101 * 101);
   const { dxM: cx, dyM: cy, radiusM, depthM } = seed.craterPreset;
 
@@ -683,28 +692,43 @@ function buildDemGrid101(seed: RawSiteSeed): number[] {
 }
 
 export const LUNAR_SITES: LunarSiteDefinition[] = RAW_SITE_SEEDS.map((seed) => {
+  const baked = (bakedSitesData as any).sites?.find(
+    (s: any) => s.site_metadata?.site_id === seed.siteId
+  );
   const { horizonH0Deg, dCritM } = buildHorizonArrays(seed);
   const demGrid101 = buildDemGrid101(seed);
+
+  const ephemeris = baked?.ephemeris ? {
+    startUtc: baked.ephemeris.start_utc,
+    stepHours: baked.ephemeris.step_hours,
+    sunAzDeg: baked.ephemeris.sun_az_deg,
+    sunElDeg: baked.ephemeris.sun_el_deg,
+    earthAzDeg: baked.ephemeris.earth_az_deg,
+    earthElDeg: baked.ephemeris.earth_el_deg,
+  } : undefined;
+
+  const nearestPsr = baked?.site_metadata?.nearest_psr_km;
 
   return {
     metadata: {
       siteId: seed.siteId,
       name: seed.name,
       shortName: seed.shortName,
-      latDeg: seed.latDeg,
-      lonDeg: seed.lonDeg,
-      elevationM: seed.elevationM,
-      nominalSlopeDeg: seed.nominalSlopeDeg,
-      rmsHeightUncertaintyM: seed.rmsHeightUncertaintyM,
-      rmsSlopeErrorDeg: seed.rmsSlopeErrorDeg,
-      demSource: seed.demSource,
+      latDeg: baked?.site_metadata?.lat_deg ?? seed.latDeg,
+      lonDeg: baked?.site_metadata?.lon_deg ?? seed.lonDeg,
+      elevationM: baked?.site_metadata?.elevation_m ?? seed.elevationM,
+      nominalSlopeDeg: baked?.site_metadata?.slope_deg ?? seed.nominalSlopeDeg,
+      rmsHeightUncertaintyM: baked?.site_metadata?.rms_height_uncertainty_m ?? seed.rmsHeightUncertaintyM,
+      rmsSlopeErrorDeg: baked?.site_metadata?.rms_slope_error_deg ?? seed.rmsSlopeErrorDeg,
+      demSource: baked?.provenance?.dem_source_label ?? seed.demSource,
       missionContext: seed.missionContext,
-      iceProximityKm: seed.iceProximityKm,
+      iceProximityKm: (nearestPsr !== undefined && nearestPsr !== null) ? nearestPsr : seed.iceProximityKm,
       isCalibration: seed.isCalibration,
     },
     horizonH0Deg,
     dCritM,
     demGrid101,
+    ephemeris,
     craterPreset: seed.craterPreset,
   };
 });

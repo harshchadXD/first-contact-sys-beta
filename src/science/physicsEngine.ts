@@ -1,4 +1,4 @@
-import { computeTopocentricEphemeris } from './ephemeris';
+import { computeTopocentricEphemeris, getTopocentricEphemerisVector } from './ephemeris';
 import { LUNAR_SITES, validateSpacecraftProfile } from './lunarData';
 import type {
   CellSafetyStatus,
@@ -21,7 +21,7 @@ const SOLAR_CONSTANT_W_M2 = 1361;
 const LUNAR_ALBEDO = 0.12;
 const REGOLITH_EMISSIVITY = 0.95;
 const STEFAN_BOLTZMANN = 5.670374419e-8;
-const BASE_EPOCH_MS = Date.UTC(2025, 2, 6, 0, 0, 0); // 2025-03-06T00:00:00Z
+const BASE_EPOCH_MS = Date.UTC(2026, 11, 1, 0, 0, 0); // 2026-12-01T00:00:00Z (JPL DE421 / LOLA mission epoch)
 
 export function clip(val: number, min: number, max: number): number {
   if (isNaN(val)) return NaN;
@@ -244,11 +244,7 @@ export function simulateMissionWindow(
 
   for (let h = 0; h < totalHours; h++) {
     const absHour = startHour + h;
-    const vec = computeTopocentricEphemeris(
-      site.metadata.latDeg,
-      site.metadata.lonDeg,
-      absHour
-    );
+    const vec = getTopocentricEphemerisVector(site, absHour);
 
     const sunAzIdx = Math.floor(vec.sunAzDeg) % 360;
     const earthAzIdx = Math.floor(vec.earthAzDeg) % 360;

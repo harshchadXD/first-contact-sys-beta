@@ -34,7 +34,7 @@ const NOMINAL_CELL_INDEX = 12; // (dx=0, dy=0)
 export default function Workspace() {
   const [section, setSection] = useState('terrain');
   useEffect(() => { document.getElementById('workspace-title')?.focus(); }, []);
-  const [siteId, setSiteId] = useState<string>('PGDA-04');
+  const [siteId, setSiteId] = useState<string>('PGDA-01');
   const [spacecraftId, setSpacecraftId] =
     useState<SpacecraftProfile['id']>('nova-c');
   const [selectedCellIndex, setSelectedCellIndex] =
@@ -285,7 +285,7 @@ export default function Workspace() {
   };
 
   const handleResetNominal = () => {
-    setSiteId('PGDA-04');
+    setSiteId('PGDA-01');
     setSpacecraftId('nova-c');
     setSelectedCellIndex(NOMINAL_CELL_INDEX);
     setConstraints((prev) => ({
