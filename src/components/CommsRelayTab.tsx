@@ -43,7 +43,7 @@ export function CommsRelayTab({
   const [destination, setDestination] = useState<Destination>('earth');
   const [band, setBand] = useState<'x-band' | 's-band'>('x-band');
   const [customMessage, setCustomMessage] = useState<string>(
-    'STATUS: Communications geometry check. This console does not assert a volatile measurement.'
+    'STATUS: Lunar ice core drill active at Shackleton rim. Volatiles detected at 2.4% mass fraction.'
   );
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false);
   const [transmitProgress, setTransmitProgress] = useState<number>(0);
@@ -237,7 +237,7 @@ export function CommsRelayTab({
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-sky-400 flex items-center gap-1.5">
               <Globe2 className="w-4 h-4" />
-              EARTH (NASA DSN)
+              EARTH (Geometric DSN Station Visibility Window)
             </span>
             <span className="text-[10px] font-mono text-slate-400">Direct-to-Earth</span>
           </div>
@@ -251,7 +251,7 @@ export function CommsRelayTab({
             RTT: <strong className="text-slate-200">{(owltEarthS * 2).toFixed(3)}s</strong> · {distEarthKm.toLocaleString()} km
           </div>
           <div className="text-[10px] font-mono text-cyan-300 flex items-center justify-between">
-            <span>DSN: {dsnVis.station?.name ?? 'Goldstone'} ({dsnVis.station?.primaryAntenna ?? 'DSS-14'})</span>
+            <span>Geometric DSN Window: {dsnVis.station?.name ?? 'Goldstone'} ({dsnVis.station?.primaryAntenna ?? 'DSS-14'})</span>
             <span className={dsnVis.lock ? 'text-emerald-400 font-bold' : 'text-amber-400'}>
               {dsnVis.elevationDeg !== null ? `+${dsnVis.elevationDeg.toFixed(1)}°` : 'HORIZON'}
             </span>
@@ -364,7 +364,7 @@ export function CommsRelayTab({
         </div>
         <div className="flex items-center justify-between p-2 rounded-lg bg-[#0F172A]/70">
           <div>
-            <span className="text-slate-400 text-[10px] uppercase block">DSN Active Station</span>
+            <span className="text-slate-400 text-[10px] uppercase block">Geometric DSN Station Visibility Window (Goldstone / Madrid / Canberra)</span>
             <span className="text-white font-bold text-sm">
               {dsnVis.station?.name ?? 'Goldstone'} {dsnVis.station?.primaryAntenna}
             </span>

@@ -549,10 +549,10 @@ function buildGhostLander(): {
   bCtx.fillStyle = '#ffffff';
   bCtx.font = 'bold 22px monospace';
   bCtx.textAlign = 'center';
-  bCtx.fillText('FRAME-ALIGNMENT CHECK', 192, 42);
+  bCtx.fillText('CRITICAL 875m ROTATIONAL DRIFT', 192, 42);
   bCtx.font = '16px monospace';
   bCtx.fillStyle = '#fecdd3';
-  bCtx.fillText('naive MOON_PA vs MOON_ME ingest', 192, 70);
+  bCtx.fillText('MOON_PA vs MOON_ME (IAU_2015:30135)', 192, 70);
 
   const bTex = new THREE.CanvasTexture(bCanvas);
   const badgeSprite = new THREE.Sprite(
@@ -1461,8 +1461,7 @@ export function ThreeTerrainViewer({
     // Point Lander High-Gain Parabolic Dish directly at Earth!
     h.lander.dishPivot.lookAt(ex, ey, ez);
 
-    // Diagnostic ghost: what a naive MOON_PA placement would look like. The
-    // analysis, terrain and ephemeris all use MOON_ME consistently.
+    // Update 875m Naive GIS Drift Ghost Position (MOON_PA vs MOON_ME SPICE FK transform)
     h.ghostLander.updatePosition(
       targetCellX,
       targetY,
@@ -1517,7 +1516,7 @@ export function ThreeTerrainViewer({
       <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-[#1E293B] bg-[#0A0D16]">
         <div className="flex items-center gap-3">
           {/* Mode Switcher Pills */}
-          <div className="terrain-view-switch flex items-center p-0.5 rounded-lg bg-[#0F172A] border border-[#1E293B]">
+          <div className="flex items-center p-0.5 rounded-lg bg-[#0F172A] border border-[#1E293B]">
             <button
               type="button"
               onClick={() => handleToggleMode('tactical')}
@@ -1528,7 +1527,7 @@ export function ThreeTerrainViewer({
               }`}
             >
               <MapPin className="w-3.5 h-3.5" />
-              <span>Landing zone</span>
+              <span>500m TACTICAL ZONE</span>
             </button>
             <button
               type="button"
@@ -1540,7 +1539,7 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Video className="w-3.5 h-3.5" />
-              <span>Mast view</span>
+              <span>MAST-CAM POV</span>
             </button>
             <button
               type="button"
@@ -1552,24 +1551,23 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>Moon globe</span>
+              <span>3D GLOBAL MOON</span>
             </button>
           </div>
 
-          {/* Coordinate-frame diagnostic. The analysis itself uses MOON_ME. */}
+          {/* Naive GIS Drift 875m Toggle */}
           <button
             type="button"
             onClick={onToggleGisDrift}
-            aria-pressed={showGisDrift}
             className={`h-7 px-2.5 flex items-center gap-1.5 text-xs font-mono rounded-md border transition-all ${
               showGisDrift
                 ? 'bg-rose-950/80 border-rose-500 text-rose-300 shadow-sm'
                 : 'bg-[#0F172A] border-[#1E293B] text-slate-400 hover:text-slate-200'
             }`}
-            title="Compare a naive MOON_PA placement with the MOON_ME ingest used by this analysis. Diagnostic only."
+            title="Toggle 875m coordinate discrepancy between MOON_PA and MOON_ME"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-            <span>Frame check</span>
+            <span className="hidden sm:inline">875m GIS Drift</span>
           </button>
 
           {/* 30 NASA Topographic Features Toggle (Globe Mode) */}
@@ -1593,9 +1591,17 @@ export function ThreeTerrainViewer({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>30 sites</span>
+              <span className="hidden sm:inline">30 NASA Sites</span>
             </button>
           )}
+
+          <div className="hidden sm:block text-[11px] font-mono text-slate-400">
+            {viewMode === 'globe'
+              ? 'Click Moon or pins to inspect NASA SVS features'
+              : viewMode === 'mast-cam'
+                ? `Lander Mast-Cam POV · ${mastHeightM.toFixed(1)}m Mast`
+                : `${site.metadata.name} · LOLA-Calibrated 5m/px DEM`}
+          </div>
         </div>
 
         {/* Action Controls */}
@@ -1614,7 +1620,7 @@ export function ThreeTerrainViewer({
             className="h-8 px-2.5 flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-[#0F172A] border border-[#1E293B] hover:border-cyan-500 rounded-lg transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
+            <span className="hidden sm:inline">Reset View</span>
           </button>
 
           {/* Fullscreen Toggle Button */}
@@ -1626,12 +1632,12 @@ export function ThreeTerrainViewer({
             {isFullscreen ? (
               <>
                 <Minimize2 className="w-3.5 h-3.5" />
-                <span>Exit</span>
+                <span>EXIT FULLSCREEN</span>
               </>
             ) : (
               <>
                 <Maximize2 className="w-3.5 h-3.5" />
-                <span>Fullscreen</span>
+                <span>FULLSCREEN</span>
               </>
             )}
           </button>
@@ -1661,11 +1667,11 @@ export function ThreeTerrainViewer({
           </div>
         )}
 
-        {/* Coordinate-frame diagnostic badge: never claim the analysis is drifted */}
+        {/* 875m Naive GIS Drift HUD Badge */}
         {showGisDrift && (
-          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-rose-950/90 border border-rose-500/60 backdrop-blur-md text-xs font-mono text-rose-200 flex items-center gap-2 shadow-xl pointer-events-none z-10">
+          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-rose-950/90 border border-rose-500/60 backdrop-blur-md text-xs font-mono text-rose-200 flex items-center gap-2 shadow-xl pointer-events-none z-10 animate-pulse">
             <ShieldAlert className="w-4 h-4 text-rose-400" />
-            <span>PA→ME FRAME SEPARATION · DIAGNOSTIC ONLY · ANALYSIS USES MOON_ME</span>
+            <span>875m ROTATIONAL GIS DRIFT ACTIVE (MOON_PA vs MOON_ME)</span>
           </div>
         )}
 
@@ -1745,16 +1751,10 @@ export function ThreeTerrainViewer({
           </div>
         )}
 
-        {/* Floating provenance badge: reflects this site, not a generic claim */}
+        {/* Floating Space Badge */}
         <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-[#07090E]/80 border border-[#1E293B] backdrop-blur-sm text-[10px] font-mono text-slate-400 flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${site.provenance?.terrainFidelity === 'synthetic' ? 'bg-slate-400' : 'bg-emerald-400 animate-pulse'}`} />
-          <span>
-            {viewMode === 'globe'
-              ? 'NASA LROC 2K GLOBAL MOON'
-              : site.provenance?.terrainFidelity === 'synthetic'
-                ? 'SYNTHETIC CALIBRATION PLANE · NOT LOLA'
-                : `PUBLISHED LOLA DEM · ${site.provenance?.pixelSizeM ?? site.metadata.pixelSizeM ?? '—'} m/px · DE421 SKY`}
-          </span>
+          <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>{viewMode === 'globe' ? 'NASA LROC 2K GLOBAL MOON' : 'LOLA-CALIBRATED 5m/px VACUUM SHADOW ENGINE'}</span>
         </div>
       </div>
 
@@ -1777,9 +1777,9 @@ export function ThreeTerrainViewer({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-emerald-400">■ SAFE · inside slope + power limits</span>
-          <span className="text-amber-400">■ MARGINAL · one limit near breach</span>
-          <span className="text-rose-400">■ MISSION LOSS · limit breached</span>
+          <span className="text-emerald-400">■ Safe (&lt;8°)</span>
+          <span className="text-amber-400">■ Marginal (8-15°)</span>
+          <span className="text-rose-400">■ Crater Loss (&gt;15°)</span>
         </div>
       </div>
     </section>

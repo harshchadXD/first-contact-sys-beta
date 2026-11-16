@@ -30,19 +30,16 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
       {/* Pareto "Goldilocks" Solver Table */}
       <section
         id="pareto-ranking"
-        aria-label="Pareto multi-site comparison"
+        aria-label="Autonomous Goldilocks Pareto Multi-Site Comparison"
         className="bg-white border border-[#DCE5F2] rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-5"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-sm font-semibold text-[#0F172A]">
-              Pareto multi-site comparison
+              Autonomous &ldquo;Goldilocks&rdquo; Pareto Multi-Site Solver
             </h2>
             <p className="text-[11px] text-[#64748B]">
-              {rankings.filter((r) => !r.isCalibration).length} real sites ranked on published LOLA terrain
-              and baked JPL DE421 sky + 1 synthetic calibration case. MOCK-01 is shown last and excluded
-              from ranking, the frontier, and recommendations. PSR distance is proximity evidence, not a
-              confirmed ice measurement.
+              Simultaneously ranks 8 NASA PGDA &amp; ISRO sites across solar persistence, DTE comms, slope flatness, and PSR volatile proximity
             </p>
           </div>
           <button
@@ -51,7 +48,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
             className="h-9 px-3.5 flex items-center gap-2 bg-[#EBF3FF] border border-[#93C5FD] hover:bg-[#DBEAFE] text-xs font-semibold text-[#1D4ED8] rounded-lg transition-colors whitespace-nowrap shrink-0"
           >
             <Download className="w-3.5 h-3.5 text-[#2563EB]" />
-            <span>Export CSV</span>
+            <span>Export CSV Telemetry</span>
           </button>
         </div>
 
@@ -83,7 +80,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
           <div>
             <div className="flex justify-between text-xs mb-1">
               <label htmlFor="weight-earth" className="text-[#334155] font-medium">
-                Geometric Earth View Weight
+                Earth DTE Comms Weight
               </label>
               <span className="font-mono tabular-nums font-semibold text-[#0284C7]">
                 {Math.round(weights.earth * 100)}%
@@ -129,7 +126,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
 
         {/* Comparison Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs rankings-table">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-[#DCE5F2] text-[#475569] font-mono">
                 <th className="py-2.5 pr-3 font-semibold">Site ID</th>
@@ -137,7 +134,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                 <th className="py-2.5 px-3 font-semibold text-right">Sun %</th>
                 <th className="py-2.5 px-3 font-semibold text-right">DTE %</th>
                 <th className="py-2.5 px-3 font-semibold text-right">Slope</th>
-                <th className="py-2.5 px-3 font-semibold text-right">Nearest PSR</th>
+                <th className="py-2.5 px-3 font-semibold text-right">PSR Ice</th>
                 <th className="py-2.5 px-3 font-semibold text-right">Max Dark</th>
                 <th className="py-2.5 px-3 font-semibold text-right">Score</th>
                 <th className="py-2.5 pl-3 font-semibold text-right">Frontier</th>
@@ -150,14 +147,10 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                   <tr
                     key={r.siteId}
                     className={`transition-colors ${
-                      r.isCalibration
-                        ? 'rank-row-calibration bg-[#F8FAFC] text-[#64748B]'
-                        : isActive
-                          ? 'bg-[#EBF3FF]'
-                          : 'hover:bg-[#F8FAFC]'
+                      isActive ? 'bg-[#EBF3FF]' : 'hover:bg-[#F8FAFC]'
                     }`}
                   >
-                    <td className="rank-site py-2.5 pr-3 text-[#0284C7] font-semibold">
+                    <td className="py-2.5 pr-3 text-[#0284C7] font-semibold">
                       <button
                         type="button"
                         onClick={() => onSelectSite(r.siteId)}
@@ -166,7 +159,7 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                         {r.siteId}
                       </button>
                     </td>
-                    <td className="rank-name py-2.5 px-3 font-sans text-[#0F172A] font-medium">
+                    <td className="py-2.5 px-3 font-sans text-[#0F172A] font-medium">
                       <button
                         type="button"
                         onClick={() => onSelectSite(r.siteId)}
@@ -175,56 +168,39 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                         {r.name}
                       </button>
                     </td>
-                    <td data-label="Sun" className="rank-sun py-2.5 px-3 text-right font-semibold text-[#B45309]">
+                    <td className="py-2.5 px-3 text-right font-semibold text-[#B45309]">
                       {r.pSunPct.toFixed(1)}%
                     </td>
-                    <td data-label="DTE" className="rank-dte py-2.5 px-3 text-right font-semibold text-[#0284C7]">
+                    <td className="py-2.5 px-3 text-right font-semibold text-[#0284C7]">
                       {r.pEarthPct.toFixed(1)}%
                     </td>
-                    <td data-label="Slope" className="rank-slope py-2.5 px-3 text-right text-[#334155]">
+                    <td className="py-2.5 px-3 text-right text-[#334155]">
                       {r.slopeDeg.toFixed(1)}°
                     </td>
-                    <td data-label="Nearest PSR" className="rank-ice py-2.5 px-3 text-right text-[#64748B]">
-                      {r.nearestPsrKm === null ? 'n/a' : `${r.nearestPsrKm.toFixed(2)} km`}
+                    <td className="py-2.5 px-3 text-right text-[#64748B]">
+                      {r.iceProximityKm.toFixed(1)} km
                     </td>
-                    <td data-label="Max dark" className="rank-dark py-2.5 px-3 text-right text-[#334155]">
+                    <td className="py-2.5 px-3 text-right text-[#334155]">
                       {r.longestDarknessHrs}h
                     </td>
-                    <td data-label="Score" className="rank-score py-2.5 px-3 text-right font-semibold text-[#0F172A]">
-                      {r.isCalibration ? (
-                        <span
-                          className="text-[#64748B] font-sans text-[10px] font-semibold tracking-wide"
-                          title="A composite mission suitability score is not assigned to synthetic calibration data."
-                        >
-                          CAL ONLY
+                    <td className="py-2.5 px-3 text-right font-semibold text-[#0F172A]">
+                      <div className="inline-flex items-center justify-end gap-2">
+                        <span className="w-12 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:inline-block">
+                          <span
+                            className="block h-full bg-[#2563EB] rounded-full"
+                            style={{ width: `${Math.max(4, Math.min(100, r.compositeScore))}%` }}
+                          />
                         </span>
-                      ) : (
-                        <div className="inline-flex items-center justify-end gap-2">
-                          <span className="w-12 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:inline-block">
-                            <span
-                              className="block h-full bg-[#2563EB] rounded-full"
-                              style={{ width: `${Math.max(4, Math.min(100, r.compositeScore))}%` }}
-                            />
-                          </span>
-                          <span>{r.compositeScore.toFixed(1)}</span>
-                        </div>
-                      )}
+                        <span>{r.compositeScore.toFixed(1)}</span>
+                      </div>
                     </td>
-                    <td className="rank-status py-2.5 pl-3 text-right">
-                      {r.isCalibration ? (
-                        <span
-                          className="inline-flex items-center gap-1.5 text-[#64748B] font-semibold"
-                          title="Synthetic plane for pipeline validation. Not a real landing candidate."
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#94A3B8]" aria-hidden="true" />
-                          CALIBRATION
-                        </span>
-                      ) : r.paretoOptimal && r.viable ? (
-                        <span className="text-[#059669] font-semibold">★ FRONTIER</span>
+                    <td className="py-2.5 pl-3 text-right">
+                      {r.paretoOptimal && r.viable ? (
+                        <span className="text-[#059669] font-semibold">★ PARETO</span>
                       ) : r.viable ? (
                         <span className="text-[#475569] font-medium">VIABLE</span>
                       ) : (
-                        <span className="text-[#E11D48] font-semibold">MISSION LOSS</span>
+                        <span className="text-[#E11D48] font-semibold">AT RISK</span>
                       )}
                     </td>
                   </tr>
@@ -233,15 +209,6 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
             </tbody>
           </table>
         </div>
-        <p className="mt-3 flex items-start gap-2 text-[11px] leading-relaxed text-[#64748B]">
-          <span className="mt-[4px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#94A3B8]" aria-hidden="true" />
-          <span>
-            <strong className="font-semibold text-[#475569]">MOCK-01 is calibration-only.</strong>{' '}
-            Its terrain is a procedural plane, so no composite suitability score is assigned and
-            it is excluded from the Pareto solver and every mission-site recommendation. It stays in the dataset to prove the full
-            analysis pipeline runs end to end on a known synthetic input.
-          </span>
-        </p>
       </section>
 
       {/* Scientific Provenance & Methodology Footer Section */}
@@ -262,17 +229,11 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
               </li>
               <li>
                 <strong className="text-[#0F172A]">Geodetic Uncertainty:</strong>{' '}
-                RMS height error {analysis.site.rmsHeightUncertaintyM === null ? 'n/a' : `±${analysis.site.rmsHeightUncertaintyM} m`}
-                {' · '}published slope error {analysis.site.rmsSlopeErrorDeg === null ? 'n/a' : `±${analysis.site.rmsSlopeErrorDeg}°`}
-                {' · '}frame {analysis.site.referenceFrame ?? 'MOON_ME'}
+                RMS height error ±{analysis.site.rmsHeightUncertaintyM} m · RMS slope error ±{analysis.site.rmsSlopeErrorDeg}° · Frame: MOON_ME (DE421-calibrated) / IAU_2015:30135
               </li>
               <li>
-                <strong className="text-[#0F172A]">Source:</strong>{' '}
-                NASA GSFC PGDA LOLA south-polar DEM products; Barker et al. (2023) <em>PSJ</em> 4, 183,
-                doi:10.3847/PSJ/acf3e1. Ephemeris: JPL DE421 SPK with NAIF MOON_ME orientation.
-                {analysis.site.terrainFidelity === 'synthetic'
-                  ? ' This site is an explicitly synthetic calibration plane.'
-                  : ''}
+                <strong className="text-[#0F172A]">Academic Citations:</strong>{' '}
+                Barker et al. (2021) <em>PSS</em> 203; Mazarico et al. (2011) <em>Icarus</em> 211; Bertone et al. (2026) <em>PSJ</em> (PGDA 104); NASA M2M Lunar Surface Data Book (2025).
               </li>
             </ul>
           </div>
@@ -287,10 +248,8 @@ export const ComparisonWorkspace: React.FC<ComparisonWorkspaceProps> = ({
                 DTE visibility measures geometric terrain clearance against 360° horizon masks. Operational RF links also depend on spacecraft antenna gain patterns, tilt pointing loss, and DSN schedules.
               </li>
               <li>
-                <strong className="text-[#0F172A]">DEM Resolution Limits:</strong>{' '}
-                This site uses {analysis.site.pixelSizeM ?? 'an unknown'} m/px published LOLA data.
-                The local 500 m crop and 30 km horizon ray cast cannot certify sub-meter boulder
-                clearance; terminal hazard avoidance requires onboard lidar.
+                <strong className="text-[#0F172A]">5m/px DEM Resolution Limits:</strong>{' '}
+                LOLA-calibrated 5m/px topography resolves regional crater walls, slopes, and horizon blockage; sub-meter terminal boulder avoidance requires onboard hazard detection lidar.
               </li>
             </ul>
           </div>

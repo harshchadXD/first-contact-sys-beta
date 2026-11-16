@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 
 import type { LunarSite } from "../types";
-import type { BakedEphemerisSeries, LunarSiteDefinition } from "../science/types";
-import { computeSiteEphemeris, OPS_EPOCH_MS } from "../science/ephemeris";
+import type { LunarSiteDefinition } from "../science/types";
+import { computeTopocentricEphemeris } from "../science/ephemeris";
 import { computeLocalSlopeDeg } from "../science/physicsEngine";
 import { loadEngine, computeHorizonDeg } from "./wasmEngineBridge";
 
@@ -46,12 +46,6 @@ const workerScope = self as unknown as WorkerScope;
 
 function getDispersionCells(site: LunarSite | LunarSiteDefinition): { dxM: number; dyM: number }[] {
   const anySite = site as any;
-  if (Array.isArray(anySite.bakedDispersion) && anySite.bakedDispersion.length === 25) {
-    return anySite.bakedDispersion.map((c: any) => ({
-      dxM: Number(c.dxM ?? 0),
-      dyM: Number(c.dyM ?? 0),
-    }));
-  }
   if (Array.isArray(anySite.dispersion_grid_5x5) && anySite.dispersion_grid_5x5.length === 25) {
     return anySite.dispersion_grid_5x5.map((c: any) => ({
       dxM: Number(c.dx_m ?? c.dxM ?? 0),
@@ -89,22 +83,6 @@ function validateRequest(request: RepairSearchRequest): void {
   ] as const) {
     if (!Number.isFinite(value) || value < 0) throw new Error(`${label} must be a finite non-negative number.`);
   }
-}
-
-function extractBakedEphemeris(site: LunarSite | LunarSiteDefinition | any): BakedEphemerisSeries | undefined {
-  if (site?.bakedEphemeris?.sunAzDeg) return site.bakedEphemeris as BakedEphemerisSeries;
-  const raw = site?.ephemeris;
-  if (raw?.sun_az_deg) {
-    return {
-      startUtc: raw.start_utc,
-      stepHours: raw.step_hours,
-      sunAzDeg: raw.sun_az_deg,
-      sunElDeg: raw.sun_el_deg,
-      earthAzDeg: raw.earth_az_deg,
-      earthElDeg: raw.earth_el_deg,
-    };
-  }
-  return undefined;
 }
 
 function dominates(a: RepairCandidate, b: RepairCandidate): boolean {
@@ -147,10 +125,6 @@ async function search(request: RepairSearchRequest): Promise<RepairSearchResult>
   const durationHours = (request.durationDays ?? 7) * 24;
   const azimuthDeg = Array.from({ length: 360 }, (_, i) => i);
   const batteryReserveWh = request.batteryReserveWh ?? request.batteryCapacityWh * DEFAULT_BATTERY_RESERVE_FRACTION;
-  const ephemerisSite = {
-    metadata: { latDeg, lonDeg },
-    bakedEphemeris: extractBakedEphemeris(request.site),
-  };
 
   // Precompute slopes for all 25 dispersion cells
   const cellSlopes = cells.map((cell) => {
@@ -181,15 +155,15 @@ async function search(request: RepairSearchRequest): Promise<RepairSearchResult>
 
       for (let h = 0; h < durationHours; h++) {
         const absHour = startHour + h;
-        const vec = computeSiteEphemeris(ephemerisSite, absHour);
-        timestampsUtc.push(new Date(OPS_EPOCH_MS + absHour * 3_600_000).toISOString());
+        const vec = computeTopocentricEphemeris(latDeg, lonDeg, absHour);
+        timestampsUtc.push(new Date(Date.UTC(2026, 11, 1, h)).toISOString());
         sunAzimuthDeg.push(Number((((vec.sunAzDeg % 360) + 360) % 360).toFixed(3)));
         sunElevationDeg.push(Number(vec.sunElDeg.toFixed(3)));
         earthAzimuthDeg.push(Number((((vec.earthAzDeg % 360) + 360) % 360).toFixed(3)));
         earthElevationDeg.push(Number(vec.earthElDeg.toFixed(3)));
       }
 
-      const windowEndUtc = new Date(OPS_EPOCH_MS + (startHour + durationHours) * 3_600_000).toISOString();
+      const windowEndUtc = new Date(Date.UTC(2026, 11, 1, durationHours)).toISOString();
 
       // Batch evaluate all 25 dispersion cells in 1 single WASM call
       const positions = cells.map((cell, idx) => ({

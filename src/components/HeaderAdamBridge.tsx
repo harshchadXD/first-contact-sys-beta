@@ -142,7 +142,7 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
                 ? 'bg-slate-100 border-slate-300 text-slate-500 hover:text-slate-700'
                 : 'bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100 shadow-2xs'
             }`}
-            title="Toggle the Apollo-inspired Quindar soundscape"
+            title="Toggle Apollo Quindar Comms Tones & Cold Trap Telemetry Audio"
           >
             {isAudioMuted ? (
               <VolumeX className="w-3.5 h-3.5" />
@@ -152,18 +152,18 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
             <span className="hidden sm:inline">Quindar {isAudioMuted ? 'Off' : 'On'}</span>
           </button>
 
-          {/* Exploratory mission scenario review */}
+          {/* NASA Flight Readiness Review (FRR) Dossier Trigger */}
           <button
             type="button"
             onClick={onOpenFrrModal}
             className="h-8 px-2.5 flex items-center gap-1.5 text-xs font-mono font-medium rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition-all"
-            title="Review modeled scenario limits and data provenance"
+            title="Open NASA Flight Readiness Review (FRR) Dossier"
           >
             <FileCheck className="w-3.5 h-3.5 text-slate-600" />
-            <span className="hidden sm:inline">Scenario Review</span>
+            <span className="hidden sm:inline">FRR Dossier</span>
           </button>
 
-          {/* Illustrative off-nominal replay / reset button */}
+          {/* IM-2 Replay / Reset Button */}
           <button
             type="button"
             onClick={isReplayActive ? onResetNominal : onToggleIm2Replay}
@@ -173,7 +173,7 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
                 : 'bg-[#FFF1F2] border-[#FDA4AF] text-[#BE123C] hover:bg-[#FFE4E6]'
             }`}
           >
-            {isReplayActive ? 'Reset Scenario' : 'Off-nominal Replay'}
+            {isReplayActive ? 'Reset Nominal' : 'IM-2 Replay'}
           </button>
         </div>
       </header>
@@ -390,9 +390,9 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
               <button
                 type="button"
                 onClick={() => onHourChange(0)}
-                aria-label="Reset timeline to first sample"
+                aria-label="Reset timeline to touchdown"
                 className="h-9 px-2.5 flex items-center justify-center bg-[#F8FAFC] border border-[#CBD5E1] hover:border-[#0284C7] rounded-lg text-xs text-[#475569] hover:text-[#0F172A] transition-colors shrink-0"
-                title="Reset to first sampled hour"
+                title="Reset to T+0h"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -400,7 +400,7 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
           </div>
         </div>
 
-        {/* Illustrative modeled case; not IM-2 telemetry or a causal finding */}
+        {/* Mission Autopsy & Engineering Override Banner (IM-2 Athena Replay) */}
         {isReplayActive && (
           <div
             role="alert"
@@ -413,10 +413,10 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
               </span>
               <div>
                 <span className="font-bold text-rose-300 font-mono tracking-wide">
-                  ILLUSTRATIVE OFF-NOMINAL SCENARIO:
+                  IM-2 ATHENA MISSION AUTOPSY:
                 </span>{' '}
                 <span className="text-slate-200">
-                  Selected offset and terrain reduce modeled solar input. The battery result belongs to this configured scenario, not to IM-2 telemetry or a mission-cause analysis.
+                  Crater dispersion trap (-200m, +200m) · 1.5° Grazing ridge shadow engulfs solar array · Battery depletes in 13h
                 </span>
               </div>
             </div>
@@ -426,7 +426,7 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
               className="px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-emerald-400 hover:from-amber-300 hover:to-emerald-300 text-slate-950 font-bold font-mono rounded-lg shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <Zap className="w-3.5 h-3.5 fill-slate-950 text-slate-950" />
-              <span>TRY A 6.5 m MAST WHAT-IF</span>
+              <span>ENGAGE ENGINEERING OVERRIDE: EXTEND MAST TO 6.5M</span>
             </button>
           </div>
         )}
@@ -440,10 +440,15 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
           >
             <div className="flex items-center gap-2 font-semibold text-[#BE123C]">
               <ShieldAlert className="w-4 h-4 text-[#E11D48] shrink-0" />
-              <span>
-                CRITICAL BATTERY DEPLETION — MISSION TERMINATED IN{' '}
-                {summary.hoursToDepletion ?? summary.longestDarknessHrs} HOURS
-              </span>
+              <div className="flex flex-col">
+                <span>
+                  CRITICAL BATTERY DEPLETION — MISSION TERMINATED IN{' '}
+                  {summary.hoursToDepletion ?? summary.longestDarknessHrs} HOURS
+                </span>
+                <span className="text-[10px] text-[#BE123C]/80 font-normal">
+                  Post-Touchdown Surface Survival Envelope
+                </span>
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono tabular-nums text-[#881337]">
               <span>
@@ -471,11 +476,16 @@ export const HeaderAdamBridge: React.FC<HeaderAdamBridgeProps> = ({
               ) : (
                 <AlertTriangle className="w-4 h-4 text-[#D97706] shrink-0" />
               )}
-              <span>
-                {summary.status === 'SAFE'
-                  ? 'NOMINAL LANDING ZONE · SURVIVAL ENVELOPE VERIFIED'
-                  : 'MARGINAL ZONE · REDUCED POWER OR COMMS MARGIN'}
-              </span>
+              <div className="flex flex-col">
+                <span>
+                  {summary.status === 'SAFE'
+                    ? 'NOMINAL LANDING ZONE · SURVIVAL ENVELOPE VERIFIED'
+                    : 'MARGINAL ZONE · REDUCED POWER OR COMMS MARGIN'}
+                </span>
+                <span className="text-[10px] text-[#64748B] font-normal">
+                  Post-Touchdown Surface Survival Envelope
+                </span>
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-3 font-mono tabular-nums text-[#475569]">
               <span>

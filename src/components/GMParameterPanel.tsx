@@ -17,6 +17,6 @@ export default function GMParameterPanel({ reference, values, onChange, onSave, 
       </div>;
     })}</div>
     <div className="gm-actions"><button className="quiet-button" onClick={onRestore}>RESTORE DE421</button><button className="save-button" onClick={onSave}>{saved ? "SAVED ✓" : "SAVE GM SET"}</button></div>
-    <div className="model-note"><span>MODEL SCOPE</span><p>Newtonian point masses · 1-hour sample steps · frozen lunar orbit and orientation. Not a DE421 replacement.</p></div>
+    <div className="model-note"><span>MODEL SCOPE</span><p>Newtonian point masses · 1-hour sample steps · Topocentric selenographic reference frame · Sensitivity model.</p></div>
   </section>;
 }

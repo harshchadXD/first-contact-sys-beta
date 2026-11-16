@@ -1,7 +1,7 @@
 import type { LunarSite } from "../types";
-import { computeSiteEphemeris, OPS_EPOCH_MS } from "../science/ephemeris";
+import { computeTopocentricEphemeris } from "../science/ephemeris";
 import { computeLocalSlopeDeg, computeDynamicHorizonArray } from "../science/physicsEngine";
-import type { BakedEphemerisSeries, LunarSiteDefinition } from "../science/types";
+import type { LunarSiteDefinition } from "../science/types";
 
 /** Candidate request for single-candidate evaluation. */
 export interface AnalysisRequest {
@@ -41,13 +41,10 @@ export async function loadEngine(): Promise<WasmEngineModule> {
           typeof (globalThis as any).process !== 'undefined' &&
           (globalThis as any).process.versions?.node
         ) {
-          // Node.js test environment: resolve file paths relative to this file.
-          // Keep the specifier dynamic so Vite does not externalize Node built-ins
-          // into the browser bundle; this branch is unreachable in a browser.
-          const nodeImport = (specifier: string) => import(/* @vite-ignore */ specifier);
-          const path = (await nodeImport('node:path')) as typeof import('node:path');
-          const fs = (await nodeImport('node:fs')) as typeof import('node:fs');
-          const { fileURLToPath, pathToFileURL } = (await nodeImport('node:url')) as typeof import('node:url');
+          // Node.js test environment: resolve file paths relative to this file
+          const path = await import('node:path');
+          const fs = await import('node:fs');
+          const { fileURLToPath, pathToFileURL } = await import('node:url');
           const currentDir = path.dirname(fileURLToPath(import.meta.url));
           const enginePath = path.resolve(currentDir, '../../engine/pkg/first_contact_engine.js');
           const wasmPath = path.resolve(currentDir, '../../engine/pkg/first_contact_engine_bg.wasm');
@@ -81,22 +78,6 @@ function extractSiteParams(site: LunarSite | LunarSiteDefinition) {
   const nominalSlopeDeg = anySite.site_metadata?.slope_deg ?? anySite.metadata?.nominalSlopeDeg ?? 2.5;
 
   return { latDeg, lonDeg, h0Deg, dCritM, nominalSlopeDeg, demGrid101: anySite.demGrid101 };
-}
-
-function extractBakedEphemeris(site: LunarSite | LunarSiteDefinition | any): BakedEphemerisSeries | undefined {
-  if (site?.bakedEphemeris?.sunAzDeg) return site.bakedEphemeris as BakedEphemerisSeries;
-  const raw = site?.ephemeris;
-  if (raw?.sun_az_deg) {
-    return {
-      startUtc: raw.start_utc,
-      stepHours: raw.step_hours,
-      sunAzDeg: raw.sun_az_deg,
-      sunElDeg: raw.sun_el_deg,
-      earthAzDeg: raw.earth_az_deg,
-      earthElDeg: raw.earth_el_deg,
-    };
-  }
-  return undefined;
 }
 
 /**
@@ -152,22 +133,17 @@ export async function analyzeWithWasm(request: AnalysisRequest): Promise<Analysi
   const earthAzimuthDeg: number[] = [];
   const earthElevationDeg: number[] = [];
 
-  const ephemerisSite = {
-    metadata: { latDeg, lonDeg },
-    bakedEphemeris: extractBakedEphemeris(request.site),
-  };
-
   for (let h = 0; h < durationHours; h++) {
     const absHour = startHour + h;
-    const vec = computeSiteEphemeris(ephemerisSite, absHour);
-    timestampsUtc.push(new Date(OPS_EPOCH_MS + absHour * 3_600_000).toISOString());
+    const vec = computeTopocentricEphemeris(latDeg, lonDeg, absHour);
+    timestampsUtc.push(new Date(Date.UTC(2026, 11, 1, h)).toISOString());
     sunAzimuthDeg.push(Number((((vec.sunAzDeg % 360) + 360) % 360).toFixed(3)));
     sunElevationDeg.push(Number(vec.sunElDeg.toFixed(3)));
     earthAzimuthDeg.push(Number((((vec.earthAzDeg % 360) + 360) % 360).toFixed(3)));
     earthElevationDeg.push(Number(vec.earthElDeg.toFixed(3)));
   }
 
-  const windowEndUtc = new Date(OPS_EPOCH_MS + (startHour + durationHours) * 3_600_000).toISOString();
+  const windowEndUtc = new Date(Date.UTC(2026, 11, 1, durationHours)).toISOString();
 
   const wasmPayload = {
     schemaVersion: 1,

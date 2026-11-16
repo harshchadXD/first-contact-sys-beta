@@ -12,7 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-export type ParetoRepairStatus = 'IDLE' | 'COMPUTING (WASM)' | 'OPTIMIZED';
+export type ParetoRepairStatus = 'IDLE' | 'COMPUTING' | 'OPTIMIZED';
 
 export interface ParetoRepairImpact {
   label: string;
@@ -38,7 +38,7 @@ export interface ParetoRepairDrawerProps {
 
 const STATUS_STYLES: Record<ParetoRepairStatus, string> = {
   IDLE: 'border-slate-700 bg-slate-900 text-slate-300',
-  'COMPUTING (WASM)': 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300',
+  COMPUTING: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300',
   OPTIMIZED: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
 };
 
@@ -90,11 +90,11 @@ export function ParetoRepairDrawer({
         <button
           type="button"
           onClick={startSolver}
-          disabled={status === 'COMPUTING (WASM)'}
+          disabled={status === 'COMPUTING'}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-left text-xs font-bold tracking-wide text-cyan-200 shadow-[0_0_24px_rgba(56,189,248,0.08)] transition hover:border-cyan-300/70 hover:bg-cyan-400/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:cursor-wait disabled:opacity-70 sm:text-sm"
         >
           <Zap className="h-4 w-4 shrink-0 text-cyan-300" />
-          <span>⚡ RUN PARETO REPAIR SOLVER (WASM 4,500 COMBINATIONS)</span>
+          <span>⚡ RUN HIGH-SPEED TRADE-SPACE SOLVER (4,500 COMBINATIONS)</span>
         </button>
         <span
           role="status"
@@ -102,7 +102,7 @@ export function ParetoRepairDrawer({
         >
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              status === 'COMPUTING (WASM)'
+              status === 'COMPUTING'
                 ? 'animate-pulse bg-cyan-300'
                 : status === 'OPTIMIZED'
                   ? 'bg-emerald-300'
@@ -187,7 +187,7 @@ export function ParetoRepairDrawer({
             <TelemetryMetric
               icon={<Zap className="h-3.5 w-3.5" />}
               label="Engine"
-              value="Rust WASM"
+              value="High-Speed Solver"
               detail="v1.0"
             />
           </section>
@@ -274,12 +274,12 @@ export function ParetoRepairDrawer({
               <div className="rounded-xl border border-dashed border-slate-700 bg-[#0F172A]/40 px-5 py-12 text-center">
                 <Zap className="mx-auto h-6 w-6 text-slate-600" />
                 <p className="mt-3 text-sm font-medium text-slate-300">
-                  {status === 'COMPUTING (WASM)'
+                  {status === 'COMPUTING'
                     ? 'Evaluating mission trajectories…'
                     : 'No repair candidates yet'}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  {status === 'COMPUTING (WASM)'
+                  {status === 'COMPUTING'
                     ? 'Pareto-optimal solutions will appear here when the worker finishes.'
                     : 'Run the solver to generate feasible mission trade-offs.'}
                 </p>
@@ -288,7 +288,7 @@ export function ParetoRepairDrawer({
           </div>
 
           <footer className="border-t border-[#1E293B] bg-[#0F172A]/55 px-5 py-3 text-center text-[10px] font-mono text-slate-500 sm:px-7">
-            Rust WebAssembly v1.0 <span className="px-1.5 text-slate-700">/</span>
+            High-Speed Trade-Space Solver (4,500 Combinations) <span className="px-1.5 text-slate-700">/</span>
             Computation runs locally in your browser
           </footer>
         </aside>
